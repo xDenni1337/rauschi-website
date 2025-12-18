@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>{{ title }} · {{ site.domain }}</title>
-  <meta name="description" content="{{ description or '' }}" />
+  <title>Diese Website (Eleventy + Netlify) · </title>
+  <meta name="description" content="" />
 
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
@@ -30,12 +30,26 @@
   </header>
 
   <main id="content" class="container content">
-    {{ content | safe }}
+    
+<h1>Diese Website (Eleventy + Netlify)</h1>
+
+<p>
+Kurzes Projekt zur Erstellung einer schlanken, wartungsarmen Website inklusive Hosting (Netlify) und Domain-Anbindung.
+</p>
+
+<h2>Technik</h2>
+<ul>
+  <li>Eleventy (11ty)</li>
+  <li>Statisches HTML/CSS</li>
+  <li>Netlify Deploy via GitHub</li>
+  <li>IONOS Domainmanagement</li>
+</ul>
+
   </main>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p class="muted">© {{ buildYear }} Denni Rauschenberg</p>
+      <p class="muted">© 2025 Denni Rauschenberg</p>
       <p class="footer-links">
         <a href="/impressum/">Impressum</a>
         <span class="dot">·</span>

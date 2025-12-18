@@ -1,0 +1,27 @@
+---
+layout: layout.njk
+title: Projekte
+description: Auswahl an Projekten und kleinen Tools.
+permalink: /projekte/
+---
+
+<h1>Projekte</h1>
+<p class="muted">Eine Auswahl an Projekten, Tools und Experimenten (laufend ergänzt).</p>
+
+<div class="cards">
+{%- for projekt in collections.projekte | reverse -%}
+  <article class="card card-link">
+    <a class="card-inner" href="{{ projekt.url }}">
+      <div class="card-header">
+        <h2 class="card-title">{{ projekt.data.title }}</h2>
+      </div>
+
+      {%- if projekt.data.kurz -%}
+        <p class="card-desc">{{ projekt.data.kurz }}</p>
+      {%- endif -%}
+
+      <span class="card-cta">Ansehen →</span>
+    </a>
+  </article>
+{%- endfor -%}
+</div>
