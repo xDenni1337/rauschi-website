@@ -1,5 +1,17 @@
 /* ---------- Base ---------- */
 :root{
+  --bg: #f4f6fb;
+  --text: #020617;
+  --muted: #475569;
+  --border: #cbd5e1;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --card-bg: #ffffff;
+  --shadow: 0 12px 34px rgba(2,6,23,.14);
+  --radius: 16px;
+}
+
+:root{
   --bg: #ffffff;
   --surface: rgba(255,255,255,.85);
   --text: #0f172a;
@@ -33,6 +45,11 @@
 
 *{ box-sizing: border-box; }
 html{ scroll-behavior: smooth; }
+body{
+  background: var(--bg);
+  color: var(--text);
+}
+
 body{
   margin: 0;
   background: var(--bg);
@@ -111,6 +128,15 @@ a:focus-visible, button:focus-visible{
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+.nav-link{
+  color: var(--text);
+  opacity: .85;
+}
+
+.nav-link:hover{
+  opacity: 1;
+}
+
 
 .nav-link{
   display: inline-flex;
@@ -145,6 +171,17 @@ a:focus-visible, button:focus-visible{
 @media (prefers-color-scheme: dark){
   .nav-cta{ background: rgba(229, 231, 235, .06); }
 }
+.nav-cta{
+  background: var(--accent);
+  color: var(--accent-contrast);
+  padding: 8px 14px;
+  border-radius: 999px;
+}
+
+.nav-cta:hover{
+  filter: brightness(1.05);
+}
+
 
 /* ---------- Typography ---------- */
 h1, h2, h3{
@@ -162,6 +199,14 @@ h2{
   font-size: clamp(20px, 2.5vw, 28px);
   margin-top: 26px;
 }
+h1, h2, h3{
+  color: var(--text);
+  letter-spacing: -0.4px;
+}
+h1{
+  font-weight: 800;
+}
+
 
 p{ margin: 0 0 14px; }
 
@@ -204,6 +249,11 @@ hr{
 .footer-links{ margin: 0; }
 .dot{ color: var(--muted); margin: 0 6px; }
 
+.muted{
+  color: var(--muted);
+}
+
+
 /* ---------- Accessibility ---------- */
 .skip-link{
   position: absolute;
@@ -219,16 +269,9 @@ hr{
 /* ---------- Projects cards ---------- */
 .cards{
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+  grid-template-columns: 1fr; /* immer eine Spalte */
+  gap: 18px;                 /* mehr Abstand */
   margin-top: 16px;
-}
-
-@media (min-width: 720px){
-  .cards{
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
 }
 
 .card-link{
@@ -237,21 +280,35 @@ hr{
 
 .card-inner{
   display: block;
-  padding: 18px 18px;
+  padding: 18px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  background: var(--card-bg);
   box-shadow: var(--shadow);
-  background: rgba(255,255,255,.6);
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark){
-  .card-inner{ background: rgba(11,18,32,.55); }
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .card-inner:hover{
-  text-decoration: none;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(2,6,23,.18);
+}
+.card-link{
+  overflow: visible;
+}
+
+.card-inner{
+  position: relative;
+  z-index: 0;
+}
+
+.card-inner:hover{
+  z-index: 1; /* falls Hover leicht hochgeht */
+}
+
+
+@media (prefers-color-scheme: dark){
+  .card-inner{ background: rgba(11,18,32,.55); }
 }
 
 .card-header{
@@ -278,4 +335,240 @@ hr{
   font-size: 14px;
   color: var(--text);
   opacity: .9;
+}
+/* ---------- Countdown ---------- */
+.countdown{
+  margin-top: 16px;
+}
+
+.countdown-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 720px){
+  .countdown-grid{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.countdown-item{
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+  background: rgba(255,255,255,.45);
+}
+
+@media (prefers-color-scheme: dark){
+  .countdown-item{
+    background: rgba(11,18,32,.40);
+  }
+}
+
+.countdown-value{
+  font-size: clamp(22px, 3.5vw, 34px);
+  font-weight: 750;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
+}
+
+.countdown-label{
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.countdown-value{
+  color: var(--text);
+}
+#cd-days{
+  color: var(--accent);
+}
+/* ---------- Buttons ---------- */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 650;
+}
+.btn:hover{ text-decoration: none; }
+
+.btn-primary{
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: transparent;
+  box-shadow: 0 14px 40px rgba(37, 99, 235, .25);
+}
+.btn-primary:hover{ filter: brightness(1.05); }
+
+.btn-ghost{
+  background: rgba(2,6,23,.04);
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark){
+  .btn-ghost{ background: rgba(229,231,235,.06); }
+}
+/* ---------- Event Hero (clean & contrast) ---------- */
+.hero{
+  margin-top: 12px;
+}
+
+.hero-card{
+  background: linear-gradient(180deg, #0b1220, #0f172a);
+  color: #f8fafc;
+  border-radius: 22px;
+  padding: 28px 22px;
+  box-shadow: 0 30px 80px rgba(2,6,23,.55);
+}
+
+.hero-top{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.badge{
+  background: rgba(37,99,235,.15);
+  border: 1px solid rgba(37,99,235,.4);
+  color: #e5edff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.badge-ghost{
+  background: transparent;
+  border-color: rgba(255,255,255,.25);
+  color: #c7d2fe;
+}
+
+.hero-title{
+  margin: 0 0 6px;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 900;
+  letter-spacing: -0.6px;
+}
+
+.hero-subtitle{
+  margin: 0 0 20px;
+  color: #c7d2fe;
+  font-size: 15px;
+}
+
+/* ---------- Countdown (high contrast) ---------- */
+.hero-countdown{
+  background: rgba(2,6,23,.55);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.countdown-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.countdown-item{
+  background: #020617;
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.countdown-value{
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 900;
+  color: #e5edff;
+  line-height: 1;
+}
+
+#cd-days{
+  color: #60a5fa; /* Akzent für Tage */
+}
+
+.countdown-label{
+  margin-top: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+
+/* ---------- Actions ---------- */
+.hero-actions{
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.btn-primary{
+  background: #2563eb;
+  color: white;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(37,99,235,.45);
+}
+
+.btn-ghost{
+  color: #e5edff;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px;
+  padding: 10px 18px;
+}
+
+
+/* Countdown: mehr „Punch“ */
+.countdown-item{
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.55));
+}
+@media (prefers-color-scheme: dark){
+  .countdown-item{
+    background: linear-gradient(180deg, rgba(11,18,32,.78), rgba(11,18,32,.45));
+  }
+}
+
+.countdown-value{
+  text-shadow: 0 1px 0 rgba(0,0,0,.06);
+}
+
+/* Party Moment (wenn countdown fertig) */
+.party-on .hero::before{
+  background: radial-gradient(closest-side, rgba(16,185,129,.22), transparent 70%);
+}
+.party-on .countdown-item{
+  border-color: rgba(16,185,129,.35);
+  animation: pop .8s ease-in-out infinite alternate;
+}
+@keyframes pop{
+  from{ transform: translateY(0); }
+  to{ transform: translateY(-2px); }
+}
+
+/* Sections */
+.section{
+  margin-top: 26px;
+}
+.section h2{
+  margin-bottom: 12px;
+}
+.section .cards{
+  gap: 14px;
+}
+.section .card{
+  padding: 16px 16px;
+}
+.section h3{
+  margin-top: 0;
+  margin-bottom: 10px;
 }
