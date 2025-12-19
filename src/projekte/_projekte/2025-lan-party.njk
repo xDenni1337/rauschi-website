@@ -1,0 +1,132 @@
+---
+layout: layout.njk
+title: "LAN Party 2025"
+kurz: "Countdown bis zum Start: 27.12.2025, 11:00 Uhr."
+permalink: /projekte/lan-party-2025/
+tags: [projekte]
+---
+
+<section class="hero">
+  <div class="hero-card">
+    <div class="hero-top">
+      <span class="badge">Event</span>
+      <span class="badge badge-ghost">LAN Party 2025</span>
+    </div>
+
+    <h1 class="hero-title">LAN Party 2025</h1>
+
+    <p class="hero-subtitle">
+      <strong>Start:</strong> 27.12.2025 – 11:00 Uhr
+      <span class="dot">·</span>
+      <strong>Status:</strong> <span id="cd-status">Countdown läuft</span>
+    </p>
+
+    <div class="countdown hero-countdown card" aria-live="polite">
+      <div class="countdown-grid">
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-days">–</div>
+          <div class="countdown-label">Tage</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-hours">–</div>
+          <div class="countdown-label">Stunden</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-minutes">–</div>
+          <div class="countdown-label">Minuten</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-seconds">–</div>
+          <div class="countdown-label">Sekunden</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#details">Details</a>
+      <a class="btn btn-ghost" href="/kontakt/">Mitmachen</a>
+    </div>
+  </div>
+</section>
+
+<section id="details" class="section">
+  <h2>Was steht an?</h2>
+  <div class="cards">
+    <article class="card">
+      <h3>Setup</h3>
+      <ul>
+        <li>PC / Laptop</li>
+        <li>Netzwerkkabel (falls vorhanden)</li>
+        <li>Headset</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h3>Games</h3>
+      <ul>
+        <li>Co-op Klassiker</li>
+        <li>FPS / Strategie (je nach Gruppe)</li>
+        <li>„Bring your favorite“</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <h3>Plan</h3>
+      <ul>
+        <li>11:00 Ankommen & Setup</li>
+        <li>12:00 Warm-up Runde</li>
+        <li>Abends Turnier / Co-op</li>
+      </ul>
+    </article>
+  </div>
+
+  <p class="muted" style="margin-top:14px;">
+    Hinweis: Zeiten/Plan sind Platzhalter – kann ich später schnell anpassen.
+  </p>
+</section>
+
+<script>
+  (function () {
+    // Zielzeit: 27.12.2025 11:00 (lokale Zeit des Besuchers)
+    const target = new Date(2025, 11, 27, 11, 0, 0); // 11 = Dezember
+
+    const elDays = document.getElementById("cd-days");
+    const elHours = document.getElementById("cd-hours");
+    const elMinutes = document.getElementById("cd-minutes");
+    const elSeconds = document.getElementById("cd-seconds");
+    const elStatus = document.getElementById("cd-status");
+
+    function pad2(n) { return String(n).padStart(2, "0"); }
+
+    function tick() {
+      const now = new Date();
+      let diff = target - now;
+
+      if (diff <= 0) {
+        elDays.textContent = "0";
+        elHours.textContent = "00";
+        elMinutes.textContent = "00";
+        elSeconds.textContent = "00";
+        elStatus.textContent = "🎉 Es geht los!";
+        document.documentElement.classList.add("party-on");
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      elDays.textContent = String(days);
+      elHours.textContent = pad2(hours);
+      elMinutes.textContent = pad2(minutes);
+      elSeconds.textContent = pad2(seconds);
+
+      elStatus.textContent = "Countdown läuft";
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
