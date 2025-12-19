@@ -572,3 +572,56 @@ hr{
   margin-top: 0;
   margin-bottom: 10px;
 }
+/* ---------- Minigame: Reaction Test ---------- */
+.game-top{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.game-area{
+  user-select: none;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  height: 220px;
+  display: grid;
+  place-items: center;
+  background: #0f172a;
+  color: #e5e7eb;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.game-area:focus-visible{
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.game-area[data-mode="idle"]{
+  background: #0f172a;
+}
+.game-area[data-mode="waiting"]{
+  background: #b45309; /* amber */
+}
+.game-area[data-mode="ready"]{
+  background: #16a34a; /* green */
+}
+.game-area[data-mode="done"]{
+  background: #1d4ed8; /* blue */
+}
+
+.game-text{
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  text-align: center;
+  padding: 0 14px;
+}
+
+.game-stats{
+  margin-top: 14px;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}

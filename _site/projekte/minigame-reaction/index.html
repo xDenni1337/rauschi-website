@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Minigame: Reaction Test · </title>
+  <meta name="description" content="" />
+
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">DR</span>
+        <span class="brand-text">Denni Rauschenberg</span>
+      </a>
+
+      <nav class="nav" aria-label="Hauptnavigation">
+        <a class="nav-link" href="/">Start</a>
+        <a class="nav-link" href="/ueber-mich/">Über mich</a>
+        <a class="nav-link" href="/projekte/">Projekte</a>
+        <a class="nav-link nav-cta" href="/kontakt/">Kontakt</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content" class="container content">
+    
+<h1>Minigame: Reaction Test</h1>
+<p class="muted">Klicke erst, wenn die Fläche <strong>grün</strong> wird. Zu früh = Fehlstart.</p>
+
+<div class="game card" id="game">
+  <div class="game-top">
+    <button class="btn btn-primary" id="btnStart">Start</button>
+    <button class="btn btn-ghost" id="btnReset">Bestwert löschen</button>
+  </div>
+
+  <div class="game-area" id="area" role="button" tabindex="0" aria-label="Spielbereich">
+    <div class="game-text" id="text">Drücke auf „Start“.</div>
+  </div>
+
+  <div class="game-stats">
+    <div><span class="muted">Letztes Ergebnis:</span> <strong id="last">–</strong></div>
+    <div><span class="muted">Bestwert:</span> <strong id="best">–</strong></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const btnStart = document.getElementById("btnStart");
+  const btnReset = document.getElementById("btnReset");
+  const area = document.getElementById("area");
+  const text = document.getElementById("text");
+  const lastEl = document.getElementById("last");
+  const bestEl = document.getElementById("best");
+
+  const KEY = "reaction_best_ms";
+  let state = "idle"; // idle | waiting | ready | done
+  let startTime = 0;
+  let timer = null;
+
+  function readBest() {
+    const v = localStorage.getItem(KEY);
+    return v ? Number(v) : null;
+  }
+  function setBest(ms) {
+    localStorage.setItem(KEY, String(ms));
+  }
+  function renderBest() {
+    const best = readBest();
+    bestEl.textContent = best == null ? "–" : best + " ms";
+  }
+
+  function setMode(mode) {
+    area.dataset.mode = mode;
+  }
+
+  function resetToIdle(msg = "Drücke auf „Start“.") {
+    state = "idle";
+    setMode("idle");
+    text.textContent = msg;
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  function start() {
+    if (state === "waiting" || state === "ready") return;
+
+    state = "waiting";
+    setMode("waiting");
+    text.textContent = "Warte… nicht klicken!";
+    clearTimeout(timer);
+
+    const delay = 1200 + Math.random() * 2800; // 1.2–4.0s
+    timer = setTimeout(() => {
+      state = "ready";
+      setMode("ready");
+      text.textContent = "JETZT!";
+      startTime = performance.now();
+    }, delay);
+  }
+
+  function clickArea() {
+    if (state === "idle") return;
+    if (state === "waiting") {
+      // Fehlstart
+      resetToIdle("Zu früh! 😅 Drücke erneut auf „Start“.");
+      lastEl.textContent = "Fehlstart";
+      return;
+    }
+    if (state === "ready") {
+      const ms = Math.round(performance.now() - startTime);
+      state = "done";
+      setMode("done");
+      text.textContent = `Reaktionszeit: ${ms} ms (klicke „Start“ für die nächste Runde)`;
+      lastEl.textContent = ms + " ms";
+
+      const best = readBest();
+      if (best == null || ms < best) {
+        setBest(ms);
+      }
+      renderBest();
+      return;
+    }
+  }
+
+  btnStart.addEventListener("click", start);
+  btnReset.addEventListener("click", () => {
+    localStorage.removeItem(KEY);
+    renderBest();
+  });
+
+  area.addEventListener("click", clickArea);
+  area.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      clickArea();
+    }
+  });
+
+  renderBest();
+  resetToIdle();
+})();
+</script>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="muted">© 2025 Denni Rauschenberg</p>
+      <p class="footer-links">
+        <a href="/impressum/">Impressum</a>
+        <span class="dot">·</span>
+        <a href="/datenschutz/">Datenschutz</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
