@@ -36,9 +36,36 @@
 
 <div class="game card" id="game">
   <div class="game-top">
-    <button class="btn btn-primary" id="btnStart">Start</button>
-    <button class="btn btn-ghost" id="btnReset">Bestwert löschen</button>
+  <label class="name-field">
+    <span class="muted">Name</span>
+    <input id="playerName" class="input" type="text" maxlength="18" placeholder="z.B. Denni" />
+  </label>
+
+  <button class="btn btn-primary" id="btnStart">Start</button>
+  <button class="btn btn-ghost" id="btnReset">Bestwert löschen</button>
+</div>
+
+  <hr />
+
+  <div class="leaderboard">
+    <div class="leaderboard-head">
+      <h2 class="leaderboard-title">Rangliste (global)</h2>
+      <button class="btn btn-ghost" id="btnClearBoard">Rangliste neu laden</button>
+    </div>
+
+    <ol class="leaderboard-list" id="board"></ol>
+    <p class="muted" style="margin-top:10px;">
+      Diese Rangliste ist global und wird über Supabase gespeichert.
+    </p>
   </div>
+
+
+<div class="game-stats">
+    <div><span class="muted">Letztes Ergebnis:</span> <strong id="last">–</strong></div>
+    <div><span class="muted">Bestwert:</span> <strong id="best">–</strong></div>
+  </div>
+</div>
+
 
   <div class="game-area" id="area" role="button" tabindex="0" aria-label="Spielbereich">
     <div class="game-text" id="text">Drücke auf „Start“.</div>
@@ -54,23 +81,71 @@
 (() => {
   const btnStart = document.getElementById("btnStart");
   const btnReset = document.getElementById("btnReset");
+  const btnClearBoard = document.getElementById("btnClearBoard");
+
+  const nameInput = document.getElementById("playerName");
   const area = document.getElementById("area");
   const text = document.getElementById("text");
+
   const lastEl = document.getElementById("last");
   const bestEl = document.getElementById("best");
+  const boardEl = document.getElementById("board");
+  if (
+    !btnStart ||
+    !btnReset ||
+    !btnClearBoard ||
+    !nameInput ||
+    !area ||
+    !text ||
+    !lastEl ||
+    !bestEl ||
+    !boardEl
+  ) {
+    console.error("Minigame UI Elemente fehlen im HTML.");
+    return;
+  }
 
-  const KEY = "reaction_best_ms";
+  const GAME = "reaction";
+
+  // Lokal: nur Name + persönlicher Bestwert (optional)
+  const KEY_NAME = "reaction_player_name";
+  const KEY_BEST = "reaction_best_ms";
+
   let state = "idle"; // idle | waiting | ready | done
   let startTime = 0;
   let timer = null;
 
+  function jsonFetch(url, opts) {
+    return fetch(url, opts).then(async (r) => {
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "Request failed");
+      return data;
+    });
+  }
+
+  function getName() {
+    return (nameInput.value || "").trim();
+  }
+
+  function loadName() {
+    const saved = localStorage.getItem(KEY_NAME);
+    if (saved) nameInput.value = saved;
+  }
+
+  function saveName() {
+    const n = getName();
+    if (n) localStorage.setItem(KEY_NAME, n);
+  }
+
   function readBest() {
-    const v = localStorage.getItem(KEY);
+    const v = localStorage.getItem(KEY_BEST);
     return v ? Number(v) : null;
   }
+
   function setBest(ms) {
-    localStorage.setItem(KEY, String(ms));
+    localStorage.setItem(KEY_BEST, String(ms));
   }
+
   function renderBest() {
     const best = readBest();
     bestEl.textContent = best == null ? "–" : best + " ms";
@@ -80,7 +155,7 @@
     area.dataset.mode = mode;
   }
 
-  function resetToIdle(msg = "Drücke auf „Start“.") {
+  function resetToIdle(msg = "Gib deinen Namen ein und drücke auf „Start“.") {
     state = "idle";
     setMode("idle");
     text.textContent = msg;
@@ -88,7 +163,55 @@
     timer = null;
   }
 
+  async function loadLeaderboard() {
+    boardEl.innerHTML = `<li class="muted">Lade Rangliste…</li>`;
+    try {
+      const res = await jsonFetch(`/.netlify/functions/leaderboard?game=${encodeURIComponent(GAME)}`);
+      const items = res.top || [];
+      if (!items.length) {
+        boardEl.innerHTML = `<li class="muted">Noch keine Einträge. Leg los 🙂</li>`;
+        return;
+      }
+      boardEl.innerHTML = items.map((it, idx) => {
+        const safeName = String(it.name).replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        return `
+          <li class="board-row">
+            <span class="rank">#${idx + 1}</span>
+            <span class="player">${safeName}</span>
+            <span class="score">${it.ms} ms</span>
+          </li>
+        `;
+      }).join("");
+    } catch (e) {
+      boardEl.innerHTML = `<li class="muted">Rangliste konnte nicht geladen werden.</li>`;
+      console.error(e);
+    }
+  }
+
+  async function submitScore(name, ms) {
+    // POST an Netlify Function
+    return jsonFetch("/.netlify/functions/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ game: GAME, name, ms }),
+    });
+  }
+
   function start() {
+    const name = getName();
+    if (!name) {
+      nameInput.focus();
+      resetToIdle("Bitte zuerst einen Namen eingeben (oben).");
+      return;
+    }
+    if (name.length > 18) {
+      nameInput.focus();
+      resetToIdle("Name zu lang (max. 18 Zeichen).");
+      return;
+    }
+
+    saveName();
+
     if (state === "waiting" || state === "ready") return;
 
     state = "waiting";
@@ -105,14 +228,15 @@
     }, delay);
   }
 
-  function clickArea() {
+  async function clickArea() {
     if (state === "idle") return;
+
     if (state === "waiting") {
-      // Fehlstart
       resetToIdle("Zu früh! 😅 Drücke erneut auf „Start“.");
       lastEl.textContent = "Fehlstart";
       return;
     }
+
     if (state === "ready") {
       const ms = Math.round(performance.now() - startTime);
       state = "done";
@@ -120,22 +244,41 @@
       text.textContent = `Reaktionszeit: ${ms} ms (klicke „Start“ für die nächste Runde)`;
       lastEl.textContent = ms + " ms";
 
+      // persönlicher Bestwert lokal
       const best = readBest();
-      if (best == null || ms < best) {
-        setBest(ms);
-      }
+      if (best == null || ms < best) setBest(ms);
       renderBest();
+
+      // global speichern + Rangliste neu laden
+      try {
+        await submitScore(getName(), ms);
+        await loadLeaderboard();
+      } catch (e) {
+        console.error(e);
+        // Score ok anzeigen, aber Hinweis:
+        text.textContent = `Reaktionszeit: ${ms} ms (Speichern fehlgeschlagen – probier später nochmal)`;
+      }
       return;
     }
   }
 
   btnStart.addEventListener("click", start);
+
+  // Bestwert lokal zurücksetzen (optional)
   btnReset.addEventListener("click", () => {
-    localStorage.removeItem(KEY);
+    localStorage.removeItem(KEY_BEST);
     renderBest();
   });
 
-  area.addEventListener("click", clickArea);
+  // Globale Rangliste kann der User NICHT löschen (wäre ja global)
+  // Button behalten wir, aber machen ihn zu "neu laden"
+  btnClearBoard.textContent = "Rangliste neu laden";
+  btnClearBoard.addEventListener("click", loadLeaderboard);
+
+  nameInput.addEventListener("change", saveName);
+  nameInput.addEventListener("blur", saveName);
+
+  area.addEventListener("click", () => { clickArea(); });
   area.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -143,10 +286,13 @@
     }
   });
 
+  loadName();
   renderBest();
+  loadLeaderboard();
   resetToIdle();
 })();
 </script>
+
 
   </main>
 
