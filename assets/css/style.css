@@ -1,17 +1,5 @@
 /* ---------- Base ---------- */
 :root{
-  --bg: #f4f6fb;
-  --text: #020617;
-  --muted: #475569;
-  --border: #cbd5e1;
-  --accent: #2563eb;
-  --accent-contrast: #ffffff;
-  --card-bg: #ffffff;
-  --shadow: 0 12px 34px rgba(2,6,23,.14);
-  --radius: 16px;
-}
-
-:root{
   --bg: #ffffff;
   --surface: rgba(255,255,255,.85);
   --text: #0f172a;
@@ -26,22 +14,25 @@
   --link-hover: #0b1220;
 
   --focus: rgba(59, 130, 246, .45);
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+
 }
 
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme]){
     --bg: #0b1220;
     --surface: rgba(11,18,32,.75);
     --text: #e5e7eb;
     --muted: #a3aab7;
     --border: rgba(229,231,235,.12);
     --shadow: 0 10px 30px rgba(0,0,0,.35);
-
     --link: #e5e7eb;
     --link-hover: #ffffff;
     --focus: rgba(96, 165, 250, .45);
   }
 }
+
 
 *{ box-sizing: border-box; }
 html{ scroll-behavior: smooth; }
@@ -625,3 +616,818 @@ hr{
   gap: 18px;
   flex-wrap: wrap;
 }
+.name-field{
+  display: grid;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.input{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text);
+}
+.input::placeholder{ color: var(--muted); }
+
+.leaderboard-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.leaderboard-list{
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.board-row{
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.6);
+}
+
+@media (prefers-color-scheme: dark){
+  .board-row{ background: rgba(11,18,32,.55); }
+}
+.rank{ color: var(--muted); font-weight: 700; }
+.player{ font-weight: 700; }
+.score{ font-variant-numeric: tabular-nums; font-weight: 800; }
+/* ---------- Theme override via data-theme ---------- */
+:root[data-theme="dark"]{
+  --bg: #0b1220;
+  --surface: rgba(11,18,32,.75);
+  --text: #e5e7eb;
+  --muted: #a3aab7;
+  --border: rgba(229,231,235,.12);
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --link: #e5e7eb;
+  --link-hover: #ffffff;
+}
+:root[data-theme="light"]{
+  --bg: #fbf7ef;                 /* creme */
+  --surface: rgba(255,255,255,.85);
+  --text: #0f172a;
+  --muted: #475569;
+  --border: rgba(15, 23, 42, .10);
+  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+  --link: #0f172a;
+  --link-hover: #0b1220;
+  --focus: rgba(59, 130, 246, .45);
+}
+
+
+/* ---------- Settings (gear + panel) ---------- */
+.settings{ position: relative; }
+.icon-btn{
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+@media (prefers-color-scheme: dark){
+  .icon-btn{ background: rgba(11,18,32,.55); }
+}
+.icon-btn:hover{ transform: translateY(-1px); }
+
+.settings-panel{
+  position: absolute;
+  right: 0;
+  top: 48px;
+  width: 320px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  z-index: 9999;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: none;
+}
+.settings-panel.open{ display: block; }
+
+.settings-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row-last{ border-bottom: none; }
+
+.settings-title{ font-weight: 800; font-size: 14px; }
+.settings-hint{ color: var(--muted); font-size: 13px; }
+
+.select{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 10px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- Home hero ---------- */
+.home-hero{
+  padding: 18px 0 10px;
+}
+.home-hero-inner{
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.55));
+  padding: 26px 20px;
+}
+@media (prefers-color-scheme: dark){
+  .home-hero-inner{
+    background: linear-gradient(180deg, rgba(11,18,32,.75), rgba(11,18,32,.55));
+  }
+}
+
+.home-badges{ display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+
+.home-title{
+  margin: 0 0 10px;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 900;
+  letter-spacing: -0.8px;
+}
+.home-subtitle{
+  margin: 0 0 18px;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+.home-actions{ display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+
+/* Tiles */
+.home-grid{
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px){
+  .home-grid{ grid-template-columns: 1fr 1fr 1fr; }
+}
+.tile{
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px 16px;
+  background: rgba(255,255,255,.65);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+}
+@media (prefers-color-scheme: dark){
+  .tile{ background: rgba(11,18,32,.55); }
+}
+.tile:hover{ text-decoration: none; transform: translateY(-2px); }
+
+.tile-top{ display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.tile-kicker{ color: var(--muted); font-size: 13px; font-weight: 700; }
+.tile-tag{
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: rgba(2,6,23,.03);
+}
+@media (prefers-color-scheme: dark){
+  .tile-tag{ background: rgba(229,231,235,.06); }
+}
+
+.tile-title{ margin: 0 0 6px; font-size: 18px; }
+.tile-text{ margin: 0; color: var(--muted); }
+/* ===========================
+   POLISH: White-mode harmony
+   + Apple-like theme switch
+   + Gear icon fix
+   =========================== */
+
+/* 1) Harmonisiere Oberflächen im Light Mode */
+:root[data-theme="light"]{
+  --bg: #fbf7ef;
+  --surface: rgba(255,255,255,.88);
+  --card-bg: rgba(255,255,255,.72); /* für cards/tiles */
+  --tile-bg: rgba(255,255,255,.72);
+  --stroke: rgba(15,23,42,.12);
+}
+
+/* Dark Mode Oberflächen */
+:root[data-theme="dark"]{
+  --card-bg: rgba(11,18,32,.62);
+  --tile-bg: rgba(11,18,32,.62);
+  --stroke: rgba(229,231,235,.14);
+}
+
+/* Cards/Tiles/Kacheln einheitlich */
+.card,
+.card-inner,
+.tile,
+.home-hero-inner{
+  background: var(--card-bg);
+  border-color: var(--stroke);
+}
+
+/* Hover-Flächen im Light Mode etwas softer */
+.nav-link:hover{
+  background: rgba(15, 23, 42, .04);
+}
+
+/* 2) Settings Panel besser lesbar (immer Surface) */
+.settings-panel{
+  background: var(--surface);
+  border-color: var(--stroke);
+}
+
+/* 3) Gear Icon fix: saubere Größe + Farbe */
+.icon-btn{
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--stroke);
+  -webkit-font-smoothing: antialiased;
+  transform: translateZ(0);
+}
+
+.icon-btn svg{
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* 4) Apple-like Switch */
+.switch{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 46px;
+  height: 28px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch input{
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch-track{
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(15,23,42,.12);
+  border: 1px solid var(--stroke);
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.switch-thumb{
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18);
+  transition: transform .18s ease;
+}
+
+/* ON state (Apple-green) */
+.switch input:checked ~ .switch-track{
+  background: rgba(34,197,94,.85);
+  border-color: rgba(34,197,94,.55);
+}
+.switch input:checked ~ .switch-thumb{
+  transform: translateX(18px);
+}
+
+/* Dark mode switch surfaces */
+:root[data-theme="dark"] .switch-track{
+  background: rgba(255,255,255,.14);
+}
+:root[data-theme="dark"] .switch-thumb{
+  background: rgba(255,255,255,.92);
+}
+/* ===== Gear icon centering fix ===== */
+.icon-btn{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+}
+
+.icon-btn svg{
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible;
+}
+
+/* ===== Typography & contrast polish (end of file) ===== */
+
+/* Grundlesbarkeit */
+body{
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Muted nicht zu blass */
+:root[data-theme="light"]{
+  --muted: rgba(15,23,42,.72);   /* vorher zu hell */
+}
+
+/* Tile/Card Text klarer */
+.tile-title, .card-title, h1, h2, h3{
+  letter-spacing: -0.3px;
+}
+
+.tile-text, .card-desc, p{
+  color: var(--muted);
+}
+
+/* Badges/Tags im Light Mode: weniger “ausgewaschen” */
+:root[data-theme="light"] .badge{
+  background: rgba(37,99,235,.10);
+  border-color: rgba(37,99,235,.28);
+  color: rgba(15,23,42,.85);
+}
+
+:root[data-theme="light"] .badge-ghost{
+  background: rgba(15,23,42,.04);
+  border-color: rgba(15,23,42,.10);
+  color: rgba(15,23,42,.78);
+}
+
+/* Tile Tag (Event/Game/Übersicht) besser lesbar */
+:root[data-theme="light"] .tile-tag{
+  background: rgba(15,23,42,.04);
+  border-col
+:root[data-theme="light"] .tile,
+:root[data-theme="light"] .card-inner{
+  background: rgba(255,255,255,.78);
+  border-color: rgba(15,23,42,.10);
+}
+.icon-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 0;
+}
+
+/* Das Icon wird als Maske genommen, die Farbe kommt von background-color */
+.gear-mask{
+  width: 20px;
+  height: 20px;
+  display: block;
+  background-color: var(--text);
+
+  -webkit-mask: url("/assets/icons/gear-wheel-304395.svg") no-repeat center / contain;
+  mask: url("/assets/icons/gear-wheel-304395.svg") no-repeat center / contain;
+}
+/* Zahnrad sichtbar & zentriert */
+.icon-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  line-height: 0;
+}
+
+.gear-img{
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+/* ===== DEBUG: force gear icon visible ===== */
+#settingsBtn{
+  background: red !important;     /* nur zum Test */
+}
+
+#settingsBtn img{
+  display: block !important;
+  width: 24px !important;
+  height: 24px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  position: relative !important;
+  z-index: 99999 !important;
+}
+/* ===== Settings gear: final visible version ===== */
+.icon-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.gear-img{
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+/* === Gear button = exakt wie nav-link === */
+.icon-btn{
+  /* exakt gleiche Basis wie .nav-link */
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--muted);
+  line-height: 1;        /* WICHTIG: verhindert Extra-Höhe */
+  height: auto;          /* KEINE feste Höhe */
+  width: auto;           /* KEINE feste Breite */
+}
+
+.icon-btn:hover{
+  color: var(--text);
+  background: rgba(15, 23, 42, .05);
+  border-color: var(--border);
+}
+
+@media (prefers-color-scheme: dark){
+  .icon-btn:hover{
+    background: rgba(229,231,235,.06);
+  }
+}
+
+/* Icon selbst */
+.gear-img{
+  width: 16px;          /* kleiner als vorher */
+  height: 16px;
+  display: block;
+}
+/* ==========================
+   Countdown Page: unify colors with theme tokens
+   ========================== */
+
+/* Hero container: gleiche „Designsprache“ wie Seite */
+.hero-card{
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--text) 10%, var(--bg) 90%),
+    color-mix(in srgb, var(--text) 18%, var(--bg) 82%)
+  );
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* In Light Mode darf Hero ruhig dunkler wirken (edler Look) */
+:root[data-theme="light"] .hero-card{
+  background: linear-gradient(180deg, #0b1220, #0f172a);
+  color: #f8fafc;
+  border-color: rgba(15,23,42,.12);
+}
+
+/* Badge Farben passend */
+:root[data-theme="light"] .badge{
+  background: rgba(37,99,235,.14);
+  border-color: rgba(37,99,235,.35);
+  color: #eaf1ff;
+}
+:root[data-theme="light"] .badge-ghost{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.18);
+  color: rgba(255,255,255,.78);
+}
+
+/* Hero Subtitle lesbar */
+:root[data-theme="light"] .hero-subtitle{
+  color: rgba(255,255,255,.78);
+}
+
+/* Countdown Bereich: statt grauem „Kasten“ lieber Surface */
+.hero-countdown{
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  border: 1px solid var(--border);
+}
+
+/* Countdown Kacheln: nicht dieses harte grau, sondern einheitlich */
+.countdown-item{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+/* Werte/Labels passend */
+.countdown-value{
+  color: var(--text);
+}
+.countdown-label{
+  color: var(--muted);
+}
+
+/* In Light Mode: Countdown-Kacheln im Hero sollen leicht „glassen“ */
+:root[data-theme="light"] .hero-countdown{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.14);
+}
+:root[data-theme="light"] .countdown-item{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.14);
+}
+:root[data-theme="light"] .countdown-value{
+  color: #ffffff;
+}
+:root[data-theme="light"] .countdown-label{
+  color: rgba(255,255,255,.70);
+}
+
+/* Buttons im Hero: Ghost Button war bei dir weiß/konflikt */
+:root[data-theme="light"] .hero .btn-ghost{
+  color: rgba(255,255,255,.88);
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.06);
+}
+:root[data-theme="light"] .hero .btn-ghost:hover{
+  background: rgba(255,255,255,.10);
+}
+/* ==========================
+   LAN Party 2025: Fix visibility in LIGHT mode
+   ========================== */
+
+/* Wenn du auf der LAN-Party-Seite eine .hero / .hero-card nutzt */
+:root[data-theme="light"] .hero-card{
+  background: linear-gradient(180deg, #0b1220, #0f172a);
+  color: #f8fafc;
+}
+
+/* Titel/Subtitles im Hero sichtbar */
+:root[data-theme="light"] .hero-card .hero-title{
+  color: #f8fafc;
+}
+:root[data-theme="light"] .hero-card .hero-subtitle{
+  color: rgba(255,255,255,.78);
+}
+
+/* Badges/Tags im Hero: sichtbar auf dunklem Hintergrund */
+:root[data-theme="light"] .hero-card .badge{
+  background: rgba(37,99,235,.16);
+  border: 1px solid rgba(37,99,235,.45);
+  color: #eaf1ff;
+}
+:root[data-theme="light"] .hero-card .badge-ghost{
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.85);
+}
+
+/* Countdown-Kacheln im Hero: “Glas” Look, Text sichtbar */
+:root[data-theme="light"] .hero-card .hero-countdown{
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+}
+:root[data-theme="light"] .hero-card .countdown-item{
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+}
+:root[data-theme="light"] .hero-card .countdown-value{
+  color: #ffffff;
+}
+:root[data-theme="light"] .hero-card .countdown-label{
+  color: rgba(255,255,255,.70);
+}
+
+/* Hero-Buttons: Ghost sichtbar */
+:root[data-theme="light"] .hero-card .btn-ghost{
+  color: rgba(255,255,255,.90);
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.06);
+}
+:root[data-theme="light"] .hero-card .btn-ghost:hover{
+  background: rgba(255,255,255,.10);
+}
+
+/* =========================================
+   LAN Party 2025: FORCE visibility in light
+   (because older hero rules override)
+   ========================================= */
+
+:root[data-theme="light"] .hero-card{
+  background: linear-gradient(180deg, #0b1220, #0f172a) !important;
+  color: #f8fafc !important;
+}
+
+/* Titel/Überschriften im Hero */
+:root[data-theme="light"] .hero-card h1,
+:root[data-theme="light"] .hero-card h2,
+:root[data-theme="light"] .hero-card h3,
+:root[data-theme="light"] .hero-title{
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+/* Kleine Infos (Start/Status) */
+:root[data-theme="light"] .hero-card,
+:root[data-theme="light"] .hero-card p,
+:root[data-theme="light"] .hero-card .muted{
+  color: rgba(255,255,255,.85) !important;
+}
+
+/* Badge / Tag sichtbar */
+:root[data-theme="light"] .hero-card .badge{
+  background: rgba(37,99,235,.18) !important;
+  border: 1px solid rgba(37,99,235,.50) !important;
+  color: #eaf1ff !important;
+}
+:root[data-theme="light"] .hero-card .badge-ghost{
+  background: rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: rgba(255,255,255,.90) !important;
+}
+
+/* Countdown area + tiles (glass) */
+:root[data-theme="light"] .hero-card .hero-countdown{
+  background: rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+}
+
+:root[data-theme="light"] .hero-card .countdown-item{
+  background: rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+}
+
+:root[data-theme="light"] .hero-card .countdown-value{
+  color: #ffffff !important;
+}
+
+:root[data-theme="light"] .hero-card .countdown-label{
+  color: rgba(255,255,255,.72) !important;
+}
+/* ==========================
+   LAN Party Hero: readable in LIGHT mode
+   ========================== */
+
+:root[data-theme="light"] .hero-card{
+  background: linear-gradient(180deg, #0b1220, #0f172a);
+  border: 1px solid rgba(255,255,255,.10);
+  color: #f8fafc;
+}
+
+/* Überschriften im Hero: nicht var(--text), sondern weiß */
+:root[data-theme="light"] .hero-card .hero-title,
+:root[data-theme="light"] .hero-card h1,
+:root[data-theme="light"] .hero-card h2,
+:root[data-theme="light"] .hero-card h3{
+  color: #f8fafc;
+}
+
+/* Subtitle/Meta */
+:root[data-theme="light"] .hero-card .hero-subtitle{
+  color: rgba(255,255,255,.80);
+}
+:root[data-theme="light"] .hero-card .hero-subtitle strong{
+  color: rgba(255,255,255,.92);
+}
+
+/* Badges im Hero sichtbar */
+:root[data-theme="light"] .hero-card .badge{
+  background: rgba(37,99,235,.18);
+  border: 1px solid rgba(37,99,235,.50);
+  color: #eaf1ff;
+}
+:root[data-theme="light"] .hero-card .badge-ghost{
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.20);
+  color: rgba(255,255,255,.88);
+}
+
+/* Countdown Card: dein Element hat auch .card -> überschreibt sonst */
+:root[data-theme="light"] .hero-card .hero-countdown.card{
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: none;
+}
+
+/* Countdown Tiles */
+:root[data-theme="light"] .hero-card .countdown-item{
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+}
+:root[data-theme="light"] .hero-card .countdown-value{
+  color: #ffffff;
+}
+:root[data-theme="light"] .hero-card .countdown-label{
+  color: rgba(255,255,255,.70);
+}
+
+/* Buttons im Hero */
+:root[data-theme="light"] .hero-card .btn-ghost{
+  color: rgba(255,255,255,.90);
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.06);
+}
+:root[data-theme="light"] .hero-card .btn-ghost:hover{
+  background: rgba(255,255,255,.10);
+}
+/* ==========================
+   LAN Party – Countdown tiles (LIGHT mode)
+   ========================== */
+
+/* Wrapper etwas luftiger */
+:root[data-theme="light"] .hero-card .hero-countdown{
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(6px);
+}
+
+/* Countdown-Kacheln: Glass statt Grau */
+:root[data-theme="light"] .hero-card .countdown-item{
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.22),
+    rgba(255,255,255,.10)
+  );
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  border-radius: 16px;
+}
+
+/* Zahlen: klar, leicht akzentuiert */
+:root[data-theme="light"] .hero-card .countdown-value{
+  color: #ffffff;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+
+/* Labels: ruhiger, nicht dominant */
+:root[data-theme="light"] .hero-card .countdown-label{
+  color: rgba(255,255,255,.72);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* Tage leicht hervorheben */
+:root[data-theme="light"] .hero-card #cd-days{
+  color: #93c5fd; /* soft blue */
+}
+:root[data-theme="light"] .hero-card .countdown-item{
+  transition: transform .2s ease, background .2s ease;
+}
+:root[data-theme="light"] .hero-card .countdown-item:hover{
+  transform: translateY(-2px);
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.28),
+    rgba(255,255,255,.14)
+  );
+}
+/* TEST: wenn du das siehst, wird die neue CSS wirklich geladen */
+.hero-card { outline: 4px solid magenta !important; }
+body::before{
+  content: "CSS LOADED";
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: red;
+  color: white;
+  padding: 6px 10px;
+  z-index: 999999;
+  font-size: 12px;
+  border-radius: 10px;
+}
+html { filter: hue-rotate(90deg) !important; }

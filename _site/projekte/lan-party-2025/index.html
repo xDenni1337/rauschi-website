@@ -4,10 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>LAN Party 2025 · </title>
+  <title>LAN Party 2025 · denni-rauschenberg.de</title>
   <meta name="description" content="" />
 
   <link rel="stylesheet" href="/assets/css/style.css" />
+  <script>
+  (function () {
+    const THEME_KEY = "site_theme";
+    const saved = localStorage.getItem(THEME_KEY);
+    const theme = (saved === "dark") ? "dark" : "light"; // default: LIGHT
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+
 </head>
 
 <body>
@@ -21,11 +30,63 @@
       </a>
 
       <nav class="nav" aria-label="Hauptnavigation">
-        <a class="nav-link" href="/">Start</a>
-        <a class="nav-link" href="/ueber-mich/">Über mich</a>
-        <a class="nav-link" href="/projekte/">Projekte</a>
-        <a class="nav-link nav-cta" href="/kontakt/">Kontakt</a>
-      </nav>
+  <a class="nav-link" href="/">Start</a>
+  <a class="nav-link" href="/ueber-mich/">Über mich</a>
+  <a class="nav-link" href="/projekte/">Projekte</a>
+  <a class="nav-link nav-cta" href="/kontakt/">Kontakt</a>
+
+  <div class="settings">
+    <button
+  class="icon-btn"
+  id="settingsBtn"
+  aria-label="Einstellungen öffnen"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+>
+  <img
+    src="/assets/icons/gear-wheel-304395.svg"
+    alt=""
+    class="gear-img"
+    aria-hidden="true"
+  >
+</button>
+
+
+
+    <div class="settings-panel" id="settingsPanel" role="dialog" aria-label="Einstellungen" aria-hidden="true">
+      <div class="settings-row">
+        <div>
+          <div class="settings-title">Theme</div>
+          <div class="settings-hint">Dark mode aktivieren</div>
+        </div>
+        <label class="switch" aria-label="Dark Mode umschalten">
+  <input id="themeToggle" type="checkbox" />
+  <span class="switch-track" aria-hidden="true"></span>
+  <span class="switch-thumb" aria-hidden="true"></span>
+</label>
+
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-title">Sprache</div>
+          <div class="settings-hint"></div>
+        </div>
+        <select class="select" id="langSelect">
+          <option value="de" selected>Deutsch</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div class="settings-row settings-row-last">
+        <div class="settings-hint">
+          Was willst du tun?
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
     </div>
   </header>
 
@@ -74,41 +135,6 @@
   </div>
 </section>
 
-<section id="details" class="section">
-  <h2>Was steht an?</h2>
-  <div class="cards">
-    <article class="card">
-      <h3>Setup</h3>
-      <ul>
-        <li>PC / Laptop</li>
-        <li>Netzwerkkabel (falls vorhanden)</li>
-        <li>Headset</li>
-      </ul>
-    </article>
-
-    <article class="card">
-      <h3>Games</h3>
-      <ul>
-        <li>Co-op Klassiker</li>
-        <li>FPS / Strategie (je nach Gruppe)</li>
-        <li>„Bring your favorite“</li>
-      </ul>
-    </article>
-
-    <article class="card">
-      <h3>Plan</h3>
-      <ul>
-        <li>11:00 Ankommen & Setup</li>
-        <li>12:00 Warm-up Runde</li>
-        <li>Abends Turnier / Co-op</li>
-      </ul>
-    </article>
-  </div>
-
-  <p class="muted" style="margin-top:14px;">
-    Hinweis: Zeiten/Plan sind Platzhalter – kann ich später schnell anpassen.
-  </p>
-</section>
 
 <script>
   (function () {
@@ -168,5 +194,65 @@
       </p>
     </div>
   </footer>
+<script>
+(() => {
+  const btn = document.getElementById("settingsBtn");
+  const panel = document.getElementById("settingsPanel");
+  const themeToggle = document.getElementById("themeToggle");
+  const langSelect = document.getElementById("langSelect");
+
+  if (!btn || !panel || !themeToggle || !langSelect) return;
+
+  // --- Theme (persisted) ---
+  const THEME_KEY = "site_theme"; // "light" | "dark"
+
+  function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    localStorage.setItem(THEME_KEY, t);
+  }
+
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved === "dark" ? "dark" : "light"); // default light
+
+  // initial state für Switch setzen
+themeToggle.checked = (document.documentElement.dataset.theme === "dark");
+
+themeToggle.addEventListener("change", () => {
+  applyTheme(themeToggle.checked ? "dark" : "light");
+});
+
+
+  // --- Settings panel ---
+  function openPanel() {
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    btn.setAttribute("aria-expanded", "true");
+  }
+  function closePanel() {
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    btn.setAttribute("aria-expanded", "false");
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    panel.classList.contains("open") ? closePanel() : openPanel();
+  });
+
+  document.addEventListener("click", () => closePanel());
+  panel.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closePanel();
+  });
+
+  // --- Language placeholder ---
+  langSelect.addEventListener("change", () => {
+    alert("Sprache kommt als nächster Schritt 🙂");
+    langSelect.value = "de";
+  });
+})();
+</script>
+
 </body>
 </html>
