@@ -1,0 +1,47 @@
+/* ---------- Projekt: Rauschen (generative Kunst) ---------- */
+.rauschen{ display: grid; gap: 14px; }
+
+.rauschen-controls{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.rauschen-select{
+  display: grid;
+  gap: 4px;
+  flex: 1 1 160px;
+  font-size: 14px;
+}
+.rauschen-select select{ cursor: pointer; }
+
+.rauschen-figure{ margin: 4px 0 0; }
+
+.rauschen-figure canvas{
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--soft);
+  box-shadow: var(--shadow-lg);
+  cursor: crosshair;
+  touch-action: manipulation;
+}
+
+.rauschen-figure figcaption{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.rauschen-actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
