@@ -461,31 +461,207 @@ function buildRoom() {
   cyl(0.06, 0.08, 0.05, shelfMat, 0, H + 0.04, 0.35, shelf);
   makeInteractive(shelf);
 
-  // ---------- Bett + Katze ----------
+  // ---------- Bett + Coco ----------
+  // Coco ist Dennis echte Katze: braun getigert (Makrele), geringelter Schwanz,
+  // helle Schnauze, große bernsteinfarbene Augen. Sie liegt wie auf dem Foto flach
+  // auf dem Bauch und lässt die Vorderpfoten über die Bettkante hängen.
+  const blanketTex = canvasTexture(256, 256, (g, w, h) => {
+    g.fillStyle = "#f1f5f9";
+    g.fillRect(0, 0, w, h);
+    g.strokeStyle = "#8f9aa8";
+    g.lineWidth = 11;
+    for (let y = -32; y < h + 32; y += 32) {
+      g.beginPath();
+      for (let x = 0; x <= w; x += 32) g.lineTo(x, y + ((x / 32) % 2 ? 16 : 0));
+      g.stroke();
+    }
+  });
+  blanketTex.wrapS = blanketTex.wrapT = THREE.RepeatWrapping;
+  blanketTex.repeat.set(2, 2);
+
   const bed = group(null, -3.3, 0, 2.75);
   box(1.35, 0.3, 2.2, mat("#8b5e3c"), 0, 0.2, 0, bed);
-  box(1.3, 0.2, 2.1, mat("#f8fafc"), 0, 0.45, 0, bed);
-  box(1.36, 0.08, 1.4, mat("#2563eb"), 0, 0.57, 0.35, bed);
+  box(1.3, 0.2, 2.1, mat("#4b5058", { roughness: 1 }), 0, 0.45, 0, bed); // grau wie Cocos Sofa
+  box(1.36, 0.08, 1.0, mat("#ffffff", { map: blanketTex }), 0, 0.57, 0.55, bed);
   box(0.9, 0.14, 0.4, mat("#ffffff"), 0, 0.62, -0.8, bed);
   box(1.35, 0.9, 0.08, mat("#8b5e3c"), 0, 0.45, -1.1, bed);
 
-  const cat = group("cat", -3.15, 0.61, 3.05);
+  // Getigertes Fell: dunkle, wellige Streifen auf graubraunem Grund
+  function tabbyTexture(rings) {
+    return canvasTexture(512, 256, (g, w, h) => {
+      g.fillStyle = "#857865";
+      g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 900; i++) {
+        g.fillStyle = rand() < 0.5 ? "rgba(60, 45, 30, .18)" : "rgba(200, 185, 160, .16)";
+        g.fillRect(rand() * w, rand() * h, 2 + rand() * 6, 1 + rand() * 2);
+      }
+      g.strokeStyle = "#33281d";
+      g.lineCap = "round";
+      const n = rings ? 9 : 11;
+      for (let i = 0; i < n; i++) {
+        g.lineWidth = 5 + rand() * 6;
+        g.beginPath();
+        if (rings) {
+          // Ringe um den Schwanz: Streifen quer zur Länge (u-Richtung)
+          const x = ((i + 0.5) / n) * w;
+          g.moveTo(x, 0);
+          g.lineTo(x + (rand() - 0.5) * 12, h);
+        } else {
+          // Makrelen-Streifen quer über den Rücken
+          const y = ((i + 0.5) / n) * h;
+          for (let x = 0; x <= w; x += 16) g.lineTo(x, y + Math.sin(x / 26 + i) * 5 + (rand() - 0.5) * 3);
+        }
+        g.stroke();
+      }
+      if (rings) {
+        g.fillStyle = "#2a2018"; // dunkle Schwanzspitze
+        g.fillRect(w - 40, 0, 40, h);
+      }
+    });
+  }
+  const furTex = tabbyTexture(false);
+  const fur = mat("#ffffff", { map: furTex, roughness: 0.95 });
+  const furPlain = mat("#857865", { roughness: 0.95 });
+  const cream = mat("#e6dccb", { roughness: 0.9 });
+
+  // Kopf: Fell mit "M" auf der Stirn und heller Schnauze (Blickrichtung +x, im Textur-Mittelpunkt)
+  const headTex = canvasTexture(512, 256, (g, w, h) => {
+    g.drawImage(furTex.image, 0, 0);
+    g.fillStyle = "#857865";
+    g.fillRect(w * 0.36, 0, w * 0.28, h);
+    g.strokeStyle = "#2f241a";
+    g.lineCap = "round";
+    g.lineWidth = 6;
+    [-24, -8, 8, 24].forEach((dx) => {
+      g.beginPath();
+      g.moveTo(w / 2 + dx, h * 0.06);
+      g.lineTo(w / 2 + dx * 0.7, h * 0.36);
+      g.stroke();
+    });
+    g.lineWidth = 5;
+    [-1, 1].forEach((s) => {
+      g.beginPath();
+      g.moveTo(w / 2 + s * 40, h * 0.5);
+      g.quadraticCurveTo(w / 2 + s * 62, h * 0.52, w / 2 + s * 82, h * 0.46);
+      g.stroke();
+    });
+    g.fillStyle = "#e6dccb";
+    g.beginPath();
+    g.ellipse(w / 2, h * 0.68, 40, 30, 0, 0, Math.PI * 2);
+    g.fill();
+  });
+
+  const cat = group("cat", -3.2, 0.61, 2.95);
   const catBody = new THREE.Group();
   cat.add(catBody);
-  const fur = mat("#f97316", { roughness: 0.95 });
-  const catTorso = sphere(0.2, fur, 0, 0.12, 0, catBody);
-  catTorso.scale.set(1, 0.65, 1.4);
-  sphere(0.13, fur, 0.02, 0.17, -0.3, catBody);
-  [-1, 1].forEach((side) => {
-    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.09, 4), fur);
-    ear.position.set(0.02 + side * 0.07, 0.3, -0.31);
-    catBody.add(ear);
+
+  const torsoGeo = new THREE.SphereGeometry(0.18, 32, 20);
+  torsoGeo.rotateZ(Math.PI / 2); // Pole an Kopf und Schwanz, damit die Streifen quer laufen
+  const torso = new THREE.Mesh(torsoGeo, fur);
+  torso.scale.set(1.7, 0.62, 1.0);
+  torso.position.set(0, 0.1, 0);
+  torso.castShadow = true;
+  catBody.add(torso);
+
+  // Hinterbeine als Polster an den Seiten
+  [-1, 1].forEach((s) => {
+    const haunch = sphere(0.09, fur, -0.17, 0.07, s * 0.14, catBody);
+    haunch.scale.set(1.4, 0.8, 0.8);
   });
-  const tail = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.035, 8, 20, Math.PI * 1.1), fur);
-  tail.rotation.x = Math.PI / 2;
-  tail.position.set(0, 0.05, 0.05);
+
+  // Vorderbeine nach vorn gestreckt, Pfoten hängen über die Bettkante
+  const legGeo = new THREE.CapsuleGeometry(0.038, 0.24, 6, 12);
+  legGeo.rotateZ(-Math.PI / 2);
+  const dropGeo = new THREE.CapsuleGeometry(0.036, 0.08, 6, 12);
+  [-1, 1].forEach((s) => {
+    const leg = new THREE.Mesh(legGeo, fur);
+    leg.position.set(0.42, 0.04, s * 0.12);
+    leg.castShadow = true;
+    catBody.add(leg);
+    const drop = new THREE.Mesh(dropGeo, fur);
+    drop.position.set(0.62, -0.03, s * 0.12);
+    drop.rotation.z = 0.25;
+    catBody.add(drop);
+    const paw = sphere(0.04, cream, 0.64, -0.1, s * 0.12, catBody);
+    paw.scale.set(1, 0.8, 1.1);
+  });
+
+  // Kopf liegt flach zwischen den Pfoten
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.125, 32, 20), mat("#ffffff", { map: headTex, roughness: 0.95 }));
+  head.scale.set(0.95, 0.85, 1.05);
+  head.position.set(0.36, 0.13, 0);
+  head.castShadow = true;
+  catBody.add(head);
+  // Schnauze und Kinn
+  [-1, 1].forEach((s) => sphere(0.035, cream, 0.465, 0.09, s * 0.025, catBody));
+  sphere(0.03, cream, 0.45, 0.065, 0, catBody);
+  // Rosa Nase
+  const nose = sphere(0.016, mat("#e8a0a0", { roughness: 0.5 }), 0.495, 0.115, 0, catBody);
+  nose.scale.set(0.8, 0.7, 1.2);
+  // Große bernsteinfarbene Augen mit runden Pupillen
+  const eyeMat = mat("#e3a92b", { roughness: 0.25, emissive: "#6b4500", emissiveIntensity: 0.4 });
+  const pupilMat = mat("#0b0b0b", { roughness: 0.2 });
+  const shineMat = new THREE.MeshBasicMaterial({ color: "#ffffff" });
+  [-1, 1].forEach((s) => {
+    const eye = sphere(0.032, eyeMat, 0.445, 0.155, s * 0.052, catBody);
+    eye.castShadow = false;
+    const pupil = sphere(0.02, pupilMat, 0.468, 0.155, s * 0.054, catBody);
+    pupil.scale.set(0.5, 1, 1);
+    pupil.castShadow = false;
+    const shine = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 6), shineMat);
+    shine.position.set(0.474, 0.166, s * 0.048);
+    catBody.add(shine);
+    // Aufgestellte Ohren mit rosa Innenseite
+    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.1, 4), furPlain);
+    ear.position.set(0.33, 0.26, s * 0.075);
+    ear.rotation.set(s * 0.35, Math.PI / 4, 0);
+    ear.castShadow = true;
+    catBody.add(ear);
+    const inner = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.07, 4), mat("#d9a3a0"));
+    inner.position.set(0.345, 0.255, s * 0.075);
+    inner.rotation.set(s * 0.35, Math.PI / 4, 0);
+    catBody.add(inner);
+  });
+  // Schnurrhaare
+  const whiskerMat = new THREE.LineBasicMaterial({ color: "#f1ede4" });
+  [-1, 1].forEach((s) => {
+    for (let i = 0; i < 3; i++) {
+      const pts = [new THREE.Vector3(0.48, 0.095, s * 0.03), new THREE.Vector3(0.52, 0.08 + i * 0.025, s * (0.17 + i * 0.01))];
+      catBody.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), whiskerMat));
+    }
+  });
+
+  // Geringelter Schwanz mit dunkler Spitze
+  const tailCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-0.28, 0.08, 0),
+    new THREE.Vector3(-0.45, 0.05, 0.04),
+    new THREE.Vector3(-0.58, 0.04, 0.16),
+    new THREE.Vector3(-0.6, 0.04, 0.3),
+  ]);
+  const tail = new THREE.Mesh(new THREE.TubeGeometry(tailCurve, 32, 0.032, 10), mat("#ffffff", { map: tabbyTexture(true), roughness: 0.95 }));
+  tail.castShadow = true;
   catBody.add(tail);
-  catBody.rotation.y = 0.5;
+  catBody.rotation.y = -0.15;
+
+  // Napf mit Namen
+  const bowlTex = canvasTexture(512, 64, (g, w, h) => {
+    g.fillStyle = "#e11d48";
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = "#fff";
+    g.font = "800 40px system-ui, sans-serif";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText("COCO", w / 4, h / 2 + 2);
+    g.fillText("COCO", (w * 3) / 4, h / 2 + 2);
+  });
+  const bowl = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2, 0.15, 0.1, 32, 1, true),
+    mat("#ffffff", { map: bowlTex, side: THREE.DoubleSide, roughness: 0.4 })
+  );
+  bowl.position.set(1.65, -0.56, 0.75); // relativ zur Gruppe, die auf Betthöhe liegt
+  bowl.castShadow = true;
+  cat.add(bowl);
+  cyl(0.16, 0.16, 0.02, mat("#7c4a1e", { roughness: 1 }), 1.65, -0.55, 0.75, cat);
   makeInteractive(cat);
 
   // ---------- Spielautomat (Minigame) ----------
@@ -682,7 +858,7 @@ function buildRoom() {
     for (let i = 0; i < 4; i++) {
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: heartTex, transparent: true, depthWrite: false }));
       s.scale.setScalar(0.18);
-      s.position.set(-3.15 + (Math.random() - 0.5) * 0.3, 1.0, 2.85 + (Math.random() - 0.5) * 0.3);
+      s.position.set(-2.85 + (Math.random() - 0.5) * 0.3, 1.0, 2.95 + (Math.random() - 0.5) * 0.3);
       s.userData.born = performance.now() + i * 150;
       scene.add(s);
       hearts.push(s);
@@ -698,7 +874,7 @@ function buildRoom() {
     minigame: { pos: [3.2, 1.65, -0.8], target: [3.2, 1.3, -3.4] },
     lan: { pos: [-2.1, 2.2, -0.9], target: [-2.3, 2.25, -3.95] },
     about: { pos: [-0.3, 1.7, 0.8], target: [-3.7, 1.2, 0.3] },
-    cat: { pos: [-1.5, 1.6, 3.5], target: [-3.15, 0.75, 3.0] },
+    cat: { pos: [-1.55, 1.25, 3.25], target: [-2.9, 0.72, 2.95] },
   };
   function homeView() {
     const aspect = camera.aspect || 1.5;
