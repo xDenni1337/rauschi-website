@@ -508,6 +508,7 @@ a.segment:hover{ text-decoration: none; }
 }
 .tile-kicker{ color: var(--muted); font-size: 13px; font-weight: 700; }
 .tile-tag{
+  margin-left: auto; /* bleibt rechts, auch ohne Kicker */
   padding: 3px 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
