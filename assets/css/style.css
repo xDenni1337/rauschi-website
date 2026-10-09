@@ -305,18 +305,31 @@ hr{
   cursor: pointer;
   transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
+.segmented-2{ grid-template-columns: repeat(2, 1fr); }
+.settings-title-gap{ margin-top: 16px; }
+
+a.segment:hover{ text-decoration: none; }
+.segment-code{
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 18px;
+}
 .segment svg{ width: 18px; height: 18px; }
 .segment:hover{ color: var(--text); }
-.segment[aria-checked="true"]{
+.segment[aria-checked="true"],
+.segment[aria-current="true"]{
   background: var(--bg);
   color: var(--text);
   box-shadow: 0 1px 2px rgba(15, 23, 42, .08), 0 2px 8px rgba(15, 23, 42, .08);
 }
-:root[data-theme="dark"] .segment[aria-checked="true"]{
+:root[data-theme="dark"] .segment[aria-checked="true"],
+.segment[aria-current="true"]{
   background: rgba(255, 255, 255, .12);
   box-shadow: none;
 }
-.segment[aria-checked="true"] svg{ color: var(--accent); }
+.segment[aria-checked="true"] svg,
+.segment[aria-current="true"] .segment-code{ color: var(--accent); }
 
 /* ---------- Buttons ---------- */
 .btn{

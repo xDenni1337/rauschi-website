@@ -1,0 +1,163 @@
+{%- set t = adminI18n[lang] -%}
+
+<div id="dash" class="dash" hidden>
+  <div class="dash-head">
+    <div>
+      <p class="kicker"><a href="{{ t.home }}">{{ t.area }}</a></p>
+      <h1>{{ t.dash.title }}</h1>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-primary" type="button" id="addBtn">{{ t.dash.add }}</button>
+      <button class="btn btn-ghost" type="button" data-logout>{{ t.logout }}</button>
+    </div>
+  </div>
+
+  <div class="range-bar" role="group" aria-label="{{ t.dash.rangeLabel }}">
+    <div class="chips" id="rangeChips">
+      <button type="button" class="chip" data-range="7d">{{ t.dash.ranges["7d"] }}</button>
+      <button type="button" class="chip" data-range="30d">{{ t.dash.ranges["30d"] }}</button>
+      <button type="button" class="chip" data-range="3m">{{ t.dash.ranges["3m"] }}</button>
+      <button type="button" class="chip" data-range="12m">{{ t.dash.ranges["12m"] }}</button>
+      <button type="button" class="chip" data-range="ytd">{{ t.dash.ranges["ytd"] }}</button>
+      <button type="button" class="chip" data-range="lastyear">{{ t.dash.ranges["lastyear"] }}</button>
+      <button type="button" class="chip" data-range="all">{{ t.dash.ranges["all"] }}</button>
+      <button type="button" class="chip" data-range="custom">{{ t.dash.ranges["custom"] }}</button>
+    </div>
+    <div class="custom-range" id="customRange" hidden>
+      <label>{{ t.dash.from }} <input class="input input-sm" type="date" id="fromDate" /></label>
+      <label>{{ t.dash.to }} <input class="input input-sm" type="date" id="toDate" /></label>
+    </div>
+    <p class="range-label muted" id="rangeLabel"></p>
+  </div>
+
+  <section class="empty card" id="emptyState" hidden>
+    <h2>{{ t.dash.emptyTitle }}</h2>
+    <p class="muted">{{ t.dash.emptyText }}</p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" type="button" data-add>{{ t.dash.emptyAdd }}</button>
+      <button class="btn btn-ghost" type="button" data-import>{{ t.dash.csvImport }}</button>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="{{ t.dash.kpis }}"></section>
+
+  <section class="grid-2">
+    <article class="card chart-card">
+      <div class="card-head">
+        <h2 class="card-h" id="distTitle">{{ t.dash.distance }}</h2>
+      </div>
+      <div class="chart" id="distChart"></div>
+    </article>
+    <article class="card chart-card">
+      <div class="card-head">
+        <h2 class="card-h">{{ t.dash.pace }}</h2>
+        <div class="legend" aria-hidden="true">
+          <span><i class="lg-dot"></i>{{ t.dash.single }}</span>
+          <span><i class="lg-line"></i>{{ t.dash.last5 }}</span>
+        </div>
+      </div>
+      <div class="chart" id="paceChart"></div>
+      <p class="chart-note muted">{{ t.dash.faster }}</p>
+    </article>
+  </section>
+
+  <section class="grid-2">
+    <article class="card">
+      <h2 class="card-h">{{ t.dash.records }}</h2>
+      <dl class="records" id="records"></dl>
+    </article>
+    <article class="card">
+      <div class="card-head">
+        <h2 class="card-h" id="goalTitle">{{ t.dash.goal }}</h2>
+        <button class="link-btn" type="button" id="goalEdit">{{ t.dash.change }}</button>
+      </div>
+      <form class="goal-form" id="goalForm" hidden>
+        <label class="field-inline">{{ t.dash.goalKm }} <input class="input input-sm" type="number" min="0" step="10" id="goalInput" /></label>
+        <button class="btn btn-primary btn-sm" type="submit">{{ t.dash.save }}</button>
+      </form>
+      <div id="goal"></div>
+    </article>
+  </section>
+
+  <article class="card">
+    <div class="card-head">
+      <h2 class="card-h">{{ t.dash.activity }}</h2>
+      <div class="heat-legend" aria-hidden="true">{{ t.dash.less }} <i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i> {{ t.dash.more }}</div>
+    </div>
+    <div class="heatmap-wrap"><div class="chart" id="heatmap"></div></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h2 class="card-h">{{ t.dash.runs }}</h2>
+      <div class="table-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-import>{{ t.dash.csvImport }}</button>
+        <button class="btn btn-ghost btn-sm" type="button" id="exportCsv">{{ t.dash.csvExport }}</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="runs">
+        <thead>
+          <tr>
+            <th scope="col">{{ t.dash.cols.date }}</th><th scope="col">{{ t.dash.cols.type }}</th><th scope="col" class="num">{{ t.dash.cols.dist }}</th>
+            <th scope="col" class="num">{{ t.dash.cols.time }}</th><th scope="col" class="num">{{ t.dash.cols.pace }}</th><th scope="col" class="num">{{ t.dash.cols.hr }}</th>
+            <th scope="col" class="num">{{ t.dash.cols.elev }}</th><th scope="col" class="num">{{ t.dash.cols.kcal }}</th><th scope="col">{{ t.dash.cols.notes }}</th><th scope="col"><span class="sr-only">{{ t.dash.cols.actions }}</span></th>
+          </tr>
+        </thead>
+        <tbody id="runRows"></tbody>
+      </table>
+    </div>
+    <button class="link-btn table-more" type="button" id="moreRows" hidden></button>
+  </article>
+
+  <input type="file" id="csvInput" accept=".csv,text/csv" hidden />
+</div>
+
+<p class="muted" id="dashLoading">{{ t.loading }}</p>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+
+<dialog class="run-dialog" id="runDialog" aria-labelledby="dialogTitle">
+  <form method="dialog" class="dialog-inner" id="runForm" novalidate>
+    <div class="dialog-head">
+      <h2 id="dialogTitle">{{ t.dialog.title }}</h2>
+      <button class="icon-btn" type="button" id="dialogClose" aria-label="{{ t.dialog.close }}">✕</button>
+    </div>
+
+    <div class="dropzone" id="dropzone" tabindex="0">
+      <input type="file" id="shotInput" accept="image/*" multiple hidden />
+      <img id="shotPreview" alt="{{ t.dialog.preview }}" hidden />
+      <div class="dz-text">
+        <strong>{{ t.dialog.shotTitle }}</strong>
+        <span class="muted">{{ t.dialog.shotText1 }} <button type="button" class="link-btn" id="shotPick">{{ t.dialog.shotPick }}</button>{{ t.dialog.shotText2 }}</span>
+        <span class="dz-status" id="shotStatus" role="status"></span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label class="field"><span>{{ t.dialog.date }}</span><input class="input" type="date" name="date" required /></label>
+      <label class="field"><span>{{ t.dialog.start }}</span><input class="input" type="time" name="startTime" /></label>
+      <label class="field"><span>{{ t.dialog.type }}</span>
+        <input class="input" name="type" list="typeList" placeholder="{{ t.dialog.typePh }}" />
+        <datalist id="typeList">{% for o in t.dialog.types %}<option value="{{ o }}">{% endfor %}</datalist>
+      </label>
+      <label class="field"><span>{{ t.dialog.dist }}</span><input class="input" name="distanceKm" inputmode="decimal" placeholder="{{ t.dialog.distPh }}" required /></label>
+      <label class="field"><span>{{ t.dialog.time }}</span><input class="input" name="duration" placeholder="{{ t.dialog.timePh }}" required /></label>
+      <label class="field"><span>{{ t.dialog.pace }}</span><input class="input" name="pace" placeholder="{{ t.dialog.pacePh }}" readonly tabindex="-1" /></label>
+      <label class="field"><span>{{ t.dialog.avgHr }}</span><input class="input" name="avgHr" inputmode="numeric" placeholder="{{ t.dialog.avgHrPh }}" /></label>
+      <label class="field"><span>{{ t.dialog.maxHr }}</span><input class="input" name="maxHr" inputmode="numeric" /></label>
+      <label class="field"><span>{{ t.dialog.elev }}</span><input class="input" name="elevationM" inputmode="numeric" placeholder="m" /></label>
+      <label class="field"><span>{{ t.dialog.kcal }}</span><input class="input" name="calories" inputmode="numeric" /></label>
+      <label class="field"><span>{{ t.dialog.cadence }}</span><input class="input" name="cadence" inputmode="numeric" placeholder="SPM" /></label>
+      <label class="field field-wide"><span>{{ t.dialog.notes }}</span><input class="input" name="notes" maxlength="500" placeholder="{{ t.dialog.notesPh }}" /></label>
+    </div>
+
+    <p class="form-msg" id="formMsg" role="alert"></p>
+
+    <div class="dialog-foot">
+      <span class="muted" id="queueInfo"></span>
+      <button class="btn btn-ghost" type="button" id="skipBtn" hidden>{{ t.dialog.skip }}</button>
+      <button class="btn btn-primary" type="submit" id="saveBtn">{{ t.dialog.save }}</button>
+    </div>
+  </form>
+</dialog>

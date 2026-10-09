@@ -1,0 +1,39 @@
+{%- set t = adminI18n[lang] -%}
+<script>window.ADMIN_T = {{ t.js | dump | safe }};</script>
+
+<section class="admin-login" id="loginView" hidden>
+  <div class="card login-card">
+    <h1>{{ t.login.title }}</h1>
+    <p class="muted">{{ t.login.text }}</p>
+    <form id="loginForm" class="login-form">
+      <label class="field">
+        <span>{{ t.login.password }}</span>
+        <input class="input" type="password" id="password" name="password" autocomplete="current-password" required />
+      </label>
+      <button class="btn btn-primary" type="submit" id="loginBtn">{{ t.login.submit }}</button>
+      <p class="form-msg" id="loginMsg" role="alert"></p>
+    </form>
+  </div>
+</section>
+
+<section id="hubView" hidden>
+  <div class="dash-head">
+    <div>
+      <p class="kicker">{{ t.area }}</p>
+      <h1>{{ t.hello }}</h1>
+    </div>
+    <button class="btn btn-ghost" type="button" data-logout>{{ t.logout }}</button>
+  </div>
+
+  <div class="cards hub-cards">
+    <article class="card card-link">
+      <a class="card-inner" href="{{ t.dashUrl }}">
+        <h2 class="card-title">{{ t.dashCard.title }}</h2>
+        <p class="card-desc">{{ t.dashCard.text }}</p>
+        <span class="card-cta">{{ t.open }}</span>
+      </a>
+    </article>
+  </div>
+</section>
+
+<p class="muted" id="adminLoading">{{ t.loading }}</p>

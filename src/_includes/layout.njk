@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="de">
+{%- set ui = i18n[lang] -%}
+{%- set deUrl = translationKey | translationUrl("de", collections.all) -%}
+{%- set enUrl = translationKey | translationUrl("en", collections.all) -%}
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,8 +27,18 @@
         (choice === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       document.documentElement.dataset.theme = dark ? "dark" : "light";
       document.documentElement.dataset.themeChoice = choice;
+
+      // Gewählte Sprache merken: wer Englisch gewählt hat, landet auf der englischen Startseite
+      try {
+        if (location.pathname === "/" && localStorage.getItem("site_lang") === "en") location.replace("/en/");
+      } catch (e) {}
     })();
   </script>
+
+  {%- if translationKey %}
+  <link rel="alternate" hreflang="de" href="https://{{ site.domain }}{{ deUrl }}" />
+  <link rel="alternate" hreflang="en" href="https://{{ site.domain }}{{ enUrl }}" />
+  {%- endif %}
 
   <link rel="stylesheet" href="/assets/css/style.css" />
   {%- if extraCss %}
@@ -34,31 +47,43 @@
 </head>
 
 <body>
-  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <a class="skip-link" href="#content">{{ ui.skip }}</a>
 
-  {%- set navItems = [
-    { url: "/", label: "Start" },
-    { url: "/ueber-mich/", label: "Über mich" },
-    { url: "/projekte/", label: "Projekte" }
-  ] -%}
+  {%- if lang == "en" -%}
+    {%- set home = "/en/" -%}
+    {%- set contactUrl = "/en/contact/" -%}
+    {%- set navItems = [
+      { url: "/en/", label: ui.nav.start },
+      { url: "/en/about/", label: ui.nav.about },
+      { url: "/en/projects/", label: ui.nav.projects }
+    ] -%}
+  {%- else -%}
+    {%- set home = "/" -%}
+    {%- set contactUrl = "/kontakt/" -%}
+    {%- set navItems = [
+      { url: "/", label: ui.nav.start },
+      { url: "/ueber-mich/", label: ui.nav.about },
+      { url: "/projekte/", label: ui.nav.projects }
+    ] -%}
+  {%- endif -%}
 
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="/" aria-label="Startseite">
+      <a class="brand" href="{{ home }}" aria-label="{{ ui.home }}">
         <span class="brand-mark">DR</span>
         <span class="brand-text">Denni Rauschenberg</span>
       </a>
 
-      <nav class="nav" aria-label="Hauptnavigation">
+      <nav class="nav" aria-label="{{ ui.nav.label }}">
         {%- for item in navItems %}
-        {%- set active = (page.url == item.url) or (item.url != "/" and page.url.startsWith(item.url)) %}
+        {%- set active = (page.url == item.url) or (item.url != home and page.url.startsWith(item.url)) %}
         <a class="nav-link" href="{{ item.url }}"{% if active %} aria-current="page"{% endif %}>{{ item.label }}</a>
         {%- endfor %}
-        <a class="nav-link nav-cta" href="/kontakt/"{% if page.url == "/kontakt/" %} aria-current="page"{% endif %}>Kontakt</a>
+        <a class="nav-link nav-cta" href="{{ contactUrl }}"{% if page.url == contactUrl %} aria-current="page"{% endif %}>{{ ui.nav.contact }}</a>
 
         <div class="settings">
           <button class="icon-btn" id="settingsBtn" type="button"
-            aria-label="Einstellungen" aria-haspopup="true" aria-expanded="false" aria-controls="settingsPanel">
+            aria-label="{{ ui.settings.button }}" aria-haspopup="true" aria-expanded="false" aria-controls="settingsPanel">
             <svg class="gear" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/>
@@ -67,30 +92,42 @@
           </button>
 
           <div class="settings-panel" id="settingsPanel" hidden>
-            <p class="settings-title" id="themeLabel">Darstellung</p>
+            <p class="settings-title" id="themeLabel">{{ ui.settings.appearance }}</p>
             <div class="segmented" role="radiogroup" aria-labelledby="themeLabel">
               <button type="button" class="segment" role="radio" data-theme-choice="light" aria-checked="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4"/>
                   <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
                 </svg>
-                <span>Hell</span>
+                <span>{{ ui.settings.light }}</span>
               </button>
               <button type="button" class="segment" role="radio" data-theme-choice="system" aria-checked="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <rect x="3" y="4" width="18" height="12" rx="2"/>
                   <path d="M8 20h8M12 16v4"/>
                 </svg>
-                <span>System</span>
+                <span>{{ ui.settings.system }}</span>
               </button>
               <button type="button" class="segment" role="radio" data-theme-choice="dark" aria-checked="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z"/>
                 </svg>
-                <span>Dunkel</span>
+                <span>{{ ui.settings.dark }}</span>
               </button>
             </div>
             <p class="settings-hint" id="themeHint"></p>
+
+            <p class="settings-title settings-title-gap" id="langLabel">{{ ui.settings.language }}</p>
+            <div class="segmented segmented-2" role="group" aria-labelledby="langLabel">
+              <a class="segment" href="{{ deUrl }}" hreflang="de" lang="de" data-lang="de"{% if lang == "de" %} aria-current="true"{% endif %}>
+                <span class="segment-code" aria-hidden="true">DE</span>
+                <span>Deutsch</span>
+              </a>
+              <a class="segment" href="{{ enUrl }}" hreflang="en" lang="en" data-lang="en"{% if lang == "en" %} aria-current="true"{% endif %}>
+                <span class="segment-code" aria-hidden="true">EN</span>
+                <span>English</span>
+              </a>
+            </div>
           </div>
         </div>
       </nav>
@@ -105,11 +142,11 @@
     <div class="container footer-inner">
       <p class="muted">© {{ buildYear }} Denni Rauschenberg</p>
       <p class="footer-links">
-        <a href="/impressum/">Impressum</a>
+        <a href="/impressum/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.imprint }}</a>
         <span class="dot" aria-hidden="true">·</span>
-        <a href="/datenschutz/">Datenschutz</a>
+        <a href="/datenschutz/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.privacy }}</a>
         <span class="dot" aria-hidden="true">·</span>
-        <a href="/admin/">Admin</a>
+        <a href="{{ '/en/admin/' if lang == 'en' else '/admin/' }}">Admin</a>
       </p>
     </div>
   </footer>
@@ -117,6 +154,7 @@
   <script>
   (() => {
     const KEY = "site_theme";
+    const UI = {{ ui.settings | dump | safe }};
     const root = document.documentElement;
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const btn = document.getElementById("settingsBtn");
@@ -143,9 +181,8 @@
         s.setAttribute("aria-checked", String(on));
         s.tabIndex = on ? 0 : -1;
       });
-      hint.textContent = choice === "system"
-        ? `Folgt deinem Gerät (gerade ${dark ? "dunkel" : "hell"}).`
-        : `Immer ${dark ? "dunkel" : "hell"}.`;
+      const mode = dark ? UI.modeDark : UI.modeLight;
+      hint.textContent = (choice === "system" ? UI.hintSystem : UI.hintFixed).replace("{mode}", mode);
     }
 
     function setChoice(choice) {
@@ -182,6 +219,13 @@
     });
 
     render(readChoice());
+
+    // ---------- Sprache ----------
+    panel.querySelectorAll("[data-lang]").forEach((link) => {
+      link.addEventListener("click", () => {
+        try { localStorage.setItem("site_lang", link.dataset.lang); } catch (e) {}
+      });
+    });
 
     // ---------- Einstellungs-Popover ----------
     function open() {

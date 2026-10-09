@@ -1,5 +1,6 @@
 // Login und Übersicht für /admin/
 (() => {
+  const T = window.ADMIN_T || {};
   const loginView = document.getElementById("loginView");
   const hubView = document.getElementById("hubView");
   const loading = document.getElementById("adminLoading");
@@ -10,7 +11,7 @@
   // Nur interne Ziele erlauben
   const next = (() => {
     const n = new URLSearchParams(location.search).get("next") || "";
-    return n.startsWith("/admin/") && !n.startsWith("//") ? n : null;
+    return /^\/(en\/)?admin\//.test(n) ? n : null;
   })();
 
   function show(admin) {
@@ -25,11 +26,11 @@
     .then((s) => {
       if (s.admin && next) return location.replace(next);
       show(Boolean(s.admin));
-      if (!s.configured) msg.textContent = "Hinweis: ADMIN_PASSWORD ist in Netlify noch nicht gesetzt.";
+      if (!s.configured) msg.textContent = T.notConfigured;
     })
     .catch(() => {
       show(false);
-      msg.textContent = "Der Server ist gerade nicht erreichbar.";
+      msg.textContent = T.offline;
     });
 
   form.addEventListener("submit", async (e) => {
@@ -44,7 +45,7 @@
         body: JSON.stringify({ password: form.password.value }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data.error || "Anmeldung fehlgeschlagen");
+      if (!r.ok) throw new Error(r.status === 401 ? T.wrongPw : data.error || T.failed);
       form.reset();
       if (next) return location.replace(next);
       show(true);

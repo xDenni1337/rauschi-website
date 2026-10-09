@@ -5,15 +5,182 @@
 
   const $ = (id) => document.getElementById(id);
   const DAY = 86400000;
-  const MONTHS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-  const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+  // ---------- Texte (Deutsch / Englisch, je nach <html lang>) ----------
+  const LANG = document.documentElement.lang === "en" ? "en" : "de";
+  const pl = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const STR = {
+    de: {
+      locale: "de-DE",
+      months: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+      weekdays: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+      dateFmt: (d, m, y) => `${d}. ${m}${y ? " " + y : ""}`,
+      runs: (n) => pl(n, "Lauf", "Läufe"),
+      weeks: (n) => pl(n, "Woche", "Wochen"),
+      week: "KW",
+      weekFrom: (w, d) => `KW ${w} (ab ${d})`,
+      vsBefore: "ggü. davor",
+      kpi: ["Läufe", "Distanz", "Laufzeit", "Ø Pace", "Ø Distanz", "Ø Puls", "Höhenmeter", "Aktive kcal"],
+      bpm: "S/min",
+      distPer: { day: "Distanz pro Tag", week: "Distanz pro Woche", month: "Distanz pro Monat" },
+      noRuns: "Keine Läufe im Zeitraum.",
+      noRunsYet: "Noch keine Läufe im Zeitraum.",
+      needTwo: "Für einen Verlauf braucht es mindestens zwei Läufe im Zeitraum.",
+      avgPace: "Ø Pace",
+      last5: "Ø letzte 5",
+      avgHr: "Ø Puls",
+      noRun: "kein Lauf",
+      ariaDist: "Balkendiagramm Distanz",
+      ariaPace: "Pace-Verlauf",
+      ariaHeat: "Aktivitätskalender",
+      heatDays: ["Mo", "", "Mi", "", "Fr", "", ""],
+      rec: {
+        longest: "Längster Lauf",
+        fastest: "Schnellste Pace (ab 3 km)",
+        best: (d) => `Beste ${d === 21.1 ? "Halbmarathon" : d + " km"}-Zeit*`,
+        mostWeek: "Meiste km in einer Woche",
+        streak: "Längste Serie",
+        streakSub: "mit mind. einem Lauf",
+        footnote: "* hochgerechnet aus der Ø-Pace eines mindestens so langen Laufs",
+      },
+      goal: {
+        title: (y) => `Jahresziel ${y}`,
+        of: "von",
+        target: "Soll heute",
+        ahead: "vor dem Plan",
+        behind: "hinter dem Plan",
+        left: (a, b) => `Noch ${a}, also etwa ${b} pro Woche`,
+        forecast: (f) => `Prognose bei aktuellem Tempo: ${f}`,
+        none: "Noch kein Ziel gesetzt.",
+        soFar: (km, y, f) => `Bisher ${km} in ${y}, Prognose ${f}.`,
+        thisWeek: "Diese Woche",
+        streak: "Wochen-Serie",
+      },
+      table: {
+        edit: "Bearbeiten",
+        del: "Löschen",
+        less: "Weniger anzeigen",
+        all: (n) => `Alle ${n} Läufe anzeigen`,
+        confirmDel: (d, km) => `Lauf vom ${d} (${km}) löschen?`,
+      },
+      rangeLabel: (a, b, n) => `${a} bis ${b} · ${n}`,
+      dialog: { add: "Lauf hinzufügen", edit: "Lauf bearbeiten", more: (n) => `Noch ${n} weitere Screenshots`, required: "Datum, Distanz und Zeit werden gebraucht." },
+      defaultType: "Outdoor-Lauf",
+      indoorType: "Indoor-Lauf",
+      shot: {
+        unreadable: "Bild konnte nicht gelesen werden.",
+        reading: "Erkenne Werte …",
+        ocr: "Erkenne Werte im Browser (OCR) … das dauert beim ersten Mal etwas.",
+        ocrFailed: "OCR konnte nicht geladen werden.",
+        fields: { date: "Datum", dist: "Distanz", time: "Zeit" },
+        missing: (e, m) => `Erkannt per ${e}. Nicht gefunden: ${m}. Bitte ergänzen.`,
+        ok: (e) => `Erkannt per ${e}. Bitte kurz prüfen und speichern.`,
+        manual: "Du kannst die Werte auch von Hand eintragen.",
+        ai: "KI",
+      },
+      csv: {
+        head: ["Datum", "Startzeit", "Art", "Distanz (km)", "Zeit", "Pace (min/km)", "Ø Puls", "Max Puls", "Höhenmeter", "Aktive kcal", "Schrittfrequenz", "Notiz"],
+        file: "laeufe",
+        none: "In der Datei wurden keine Läufe gefunden.",
+        confirm: (n) => `${n} Läufe importieren?`,
+        done: (n, skip) => `${n} Läufe importiert${skip ? `, ${skip} übersprungen (Datum, Distanz oder Zeit fehlte)` : ""}.`,
+      },
+      notLoggedIn: "Nicht angemeldet",
+      error: (s) => `Fehler ${s}`,
+      loadFailed: (m) => `Konnte Daten nicht laden: ${m}`,
+      adminHome: "/admin/",
+    },
+    en: {
+      locale: "en-GB",
+      months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      weekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      dateFmt: (d, m, y) => `${d} ${m}${y ? " " + y : ""}`,
+      runs: (n) => pl(n, "run", "runs"),
+      weeks: (n) => pl(n, "week", "weeks"),
+      week: "W",
+      weekFrom: (w, d) => `Week ${w} (from ${d})`,
+      vsBefore: "vs. previous",
+      kpi: ["Runs", "Distance", "Time", "Avg pace", "Avg distance", "Avg heart rate", "Elevation", "Active kcal"],
+      bpm: "bpm",
+      distPer: { day: "Distance per day", week: "Distance per week", month: "Distance per month" },
+      noRuns: "No runs in this period.",
+      noRunsYet: "No runs in this period yet.",
+      needTwo: "A trend needs at least two runs in the period.",
+      avgPace: "Avg pace",
+      last5: "Avg last 5",
+      avgHr: "Avg HR",
+      noRun: "no run",
+      ariaDist: "Bar chart of distance",
+      ariaPace: "Pace trend",
+      ariaHeat: "Activity calendar",
+      heatDays: ["Mon", "", "Wed", "", "Fri", "", ""],
+      rec: {
+        longest: "Longest run",
+        fastest: "Fastest pace (3 km+)",
+        best: (d) => `Best ${d === 21.1 ? "half marathon" : d + " km"} time*`,
+        mostWeek: "Most km in a week",
+        streak: "Longest streak",
+        streakSub: "with at least one run",
+        footnote: "* projected from the average pace of a run at least that long",
+      },
+      goal: {
+        title: (y) => `Goal for ${y}`,
+        of: "of",
+        target: "Target today",
+        ahead: "ahead of plan",
+        behind: "behind plan",
+        left: (a, b) => `${a} to go, about ${b} per week`,
+        forecast: (f) => `Forecast at current rate: ${f}`,
+        none: "No goal set yet.",
+        soFar: (km, y, f) => `${km} so far in ${y}, forecast ${f}.`,
+        thisWeek: "This week",
+        streak: "Week streak",
+      },
+      table: {
+        edit: "Edit",
+        del: "Delete",
+        less: "Show less",
+        all: (n) => `Show all ${n} runs`,
+        confirmDel: (d, km) => `Delete the run from ${d} (${km})?`,
+      },
+      rangeLabel: (a, b, n) => `${a} to ${b} · ${n}`,
+      dialog: { add: "Add run", edit: "Edit run", more: (n) => `${n} more screenshots`, required: "Date, distance and time are required." },
+      defaultType: "Outdoor run",
+      indoorType: "Indoor run",
+      shot: {
+        unreadable: "Could not read the image.",
+        reading: "Reading values …",
+        ocr: "Reading values in the browser (OCR) … the first time takes a moment.",
+        ocrFailed: "Could not load OCR.",
+        fields: { date: "date", dist: "distance", time: "time" },
+        missing: (e, m) => `Read via ${e}. Not found: ${m}. Please fill in.`,
+        ok: (e) => `Read via ${e}. Please check and save.`,
+        manual: "You can also enter the values by hand.",
+        ai: "AI",
+      },
+      csv: {
+        head: ["Date", "Start time", "Type", "Distance (km)", "Time", "Pace (min/km)", "Avg HR", "Max HR", "Elevation", "Active kcal", "Cadence", "Notes"],
+        file: "runs",
+        none: "No runs found in the file.",
+        confirm: (n) => `Import ${n} runs?`,
+        done: (n, skip) => `${n} runs imported${skip ? `, ${skip} skipped (date, distance or time missing)` : ""}.`,
+      },
+      notLoggedIn: "Not logged in",
+      error: (s) => `Error ${s}`,
+      loadFailed: (m) => `Could not load data: ${m}`,
+      adminHome: "/en/admin/",
+    },
+  };
+  const T = STR[LANG];
+  const MONTHS = T.months;
+  const WEEKDAYS = T.weekdays;
 
   let runs = [];
   let settings = {};
   let range = readRange();
 
   // ---------- Formatierung ----------
-  const nf = (d) => new Intl.NumberFormat("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const nf = (d) => new Intl.NumberFormat(T.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
   const fmtKm = (km, d = 1) => `${nf(d).format(km)} km`;
   const fmtInt = (n) => nf(0).format(n);
 
@@ -56,7 +223,7 @@
   const daysBetween = (a, b) => Math.round((parseIso(b) - parseIso(a)) / DAY);
   const fmtDate = (s, withYear = true) => {
     const d = parseIso(s);
-    return `${d.getDate()}. ${MONTHS[d.getMonth()]}${withYear ? " " + d.getFullYear() : ""}`;
+    return T.dateFmt(d.getDate(), MONTHS[d.getMonth()], withYear ? d.getFullYear() : null);
   };
   const weekStart = (s) => {
     const d = parseIso(s);
@@ -103,12 +270,12 @@
       ...opts,
     });
     if (r.status === 401) {
-      location.replace("/admin/?next=" + encodeURIComponent(location.pathname));
-      throw new Error("Nicht angemeldet");
+      location.replace(T.adminHome + "?next=" + encodeURIComponent(location.pathname));
+      throw new Error(T.notLoggedIn);
     }
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
-      const err = new Error(data.error || `Fehler ${r.status}`);
+      const err = new Error(data.error || T.error(r.status));
       err.status = r.status;
       err.data = data;
       throw err;
@@ -174,33 +341,35 @@
       pace: km ? sec / km : null,
       avgKm: list.length ? km / list.length : null,
       hr: hrAvg,
-      elev: list.reduce((a, r) => a + (r.elevationM || 0), 0),
-      kcal: list.reduce((a, r) => a + (r.calories || 0), 0),
+      // null, wenn kein Lauf den Wert hat (z. B. importierte Läufe)
+      elev: list.some((r) => r.elevationM != null) ? list.reduce((a, r) => a + (r.elevationM || 0), 0) : null,
+      kcal: list.some((r) => r.calories != null) ? list.reduce((a, r) => a + (r.calories || 0), 0) : null,
     };
   }
 
   function delta(cur, prev, lowerIsBetter) {
     if (prev === null || prev === undefined || !cur || !prev) return "";
     const pct = ((cur - prev) / prev) * 100;
-    if (Math.abs(pct) < 0.5) return `<span class="delta">± 0 % ggü. davor</span>`;
+    if (Math.abs(pct) < 0.5) return `<span class="delta">± 0 % ${T.vsBefore}</span>`;
     const better = lowerIsBetter ? pct < 0 : pct > 0;
     const arrow = pct > 0 ? "▲" : "▼";
-    return `<span class="delta ${better ? "good" : "bad"}"><span aria-hidden="true">${arrow}</span> ${nf(0).format(Math.abs(pct))} % ggü. davor</span>`;
+    return `<span class="delta ${better ? "good" : "bad"}"><span aria-hidden="true">${arrow}</span> ${nf(0).format(Math.abs(pct))} % ${T.vsBefore}</span>`;
   }
 
   function renderKpis(cur, prev) {
     const p = prev || {};
     const tiles = [
-      ["Läufe", fmtInt(cur.count), delta(cur.count, p.count)],
-      ["Distanz", fmtKm(cur.km), delta(cur.km, p.km)],
-      ["Laufzeit", fmtDuration(cur.sec, true), delta(cur.sec, p.sec)],
-      ["Ø Pace", cur.pace ? `${fmtPace(cur.pace)} /km` : "–", delta(cur.pace, p.pace, true)],
-      ["Ø Distanz", cur.avgKm ? fmtKm(cur.avgKm, 2) : "–", delta(cur.avgKm, p.avgKm)],
-      ["Ø Puls", cur.hr ? `${fmtInt(cur.hr)} S/min` : "–", ""],
-      ["Höhenmeter", `${fmtInt(cur.elev)} m`, delta(cur.elev, p.elev)],
-      ["Aktive kcal", fmtInt(cur.kcal), delta(cur.kcal, p.kcal)],
+      [fmtInt(cur.count), delta(cur.count, p.count)],
+      [fmtKm(cur.km), delta(cur.km, p.km)],
+      [fmtDuration(cur.sec, true), delta(cur.sec, p.sec)],
+      [cur.pace ? `${fmtPace(cur.pace)} /km` : "–", delta(cur.pace, p.pace, true)],
+      [cur.avgKm ? fmtKm(cur.avgKm, 2) : "–", delta(cur.avgKm, p.avgKm)],
+      [cur.hr ? `${fmtInt(cur.hr)} ${T.bpm}` : "–", ""],
+      [cur.elev != null ? `${fmtInt(cur.elev)} m` : "–", delta(cur.elev, p.elev)],
+      [cur.kcal != null ? fmtInt(cur.kcal) : "–", delta(cur.kcal, p.kcal)],
     ];
     $("kpis").innerHTML = tiles
+      .map(([value, d], i) => [T.kpi[i], value, d])
       .map(([label, value, d]) => `<div class="kpi"><p class="kpi-label">${label}</p><p class="kpi-value">${value}</p>${d}</div>`)
       .join("");
   }
@@ -280,15 +449,15 @@
   function bucketLabel(b, unit, short) {
     const d = parseIso(b.start);
     if (unit === "day") return short ? `${d.getDate()}.` : `${WEEKDAYS[d.getDay()]}, ${fmtDate(b.start)}`;
-    if (unit === "week") return short ? `KW ${isoWeek(b.start)}` : `KW ${isoWeek(b.start)} (ab ${fmtDate(b.start)})`;
+    if (unit === "week") return short ? `${T.week} ${isoWeek(b.start)}` : T.weekFrom(isoWeek(b.start), fmtDate(b.start));
     return short ? MONTHS[d.getMonth()] : `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   }
 
   function renderDistChart(list, r) {
     const host = $("distChart");
     const { unit, list: bs } = buckets(list, r);
-    $("distTitle").textContent = `Distanz pro ${unit === "day" ? "Tag" : unit === "week" ? "Woche" : "Monat"}`;
-    if (!list.length) return emptyChart(host, "Keine Läufe im Zeitraum.");
+    $("distTitle").textContent = T.distPer[unit];
+    if (!list.length) return emptyChart(host, T.noRuns);
 
     const W = Math.max(host.clientWidth, 280);
     const H = 220;
@@ -302,7 +471,7 @@
     const bw = Math.max(2, Math.min(28, slot * 0.7));
 
     host.innerHTML = "";
-    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Balkendiagramm Distanz" }, host);
+    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": T.ariaDist }, host);
     for (const t of ticks) {
       el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), class: "grid" }, svg);
       el("text", { x: m.l - 6, y: y(t) + 4, class: "axis", "text-anchor": "end" }, svg).textContent = nf(0).format(t);
@@ -325,7 +494,7 @@
         el("text", { x: cx, y: H - 8, class: "axis", "text-anchor": "middle" }, svg).textContent = bucketLabel(b, unit, true);
       }
       const hit = el("rect", { x: m.l + slot * i, y: m.t, width: slot, height: ih, class: "hit" }, svg);
-      const html = `<strong>${bucketLabel(b, unit)}</strong><br>${fmtKm(b.km, 2)} · ${b.count} ${b.count === 1 ? "Lauf" : "Läufe"}${b.count ? `<br>Ø Pace ${fmtPace(b.sec / b.km)} /km` : ""}`;
+      const html = `<strong>${bucketLabel(b, unit)}</strong><br>${fmtKm(b.km, 2)} · ${T.runs(b.count)}${b.count ? `<br>${T.avgPace} ${fmtPace(b.sec / b.km)} /km` : ""}`;
       hit.addEventListener("pointermove", (e) => {
         hit.classList.add("on");
         showTip(html, e.clientX, e.clientY);
@@ -342,7 +511,7 @@
   function renderPaceChart(list) {
     const host = $("paceChart");
     const pts = list.filter((r) => r.distanceKm >= 1).map((r) => ({ r, t: parseIso(r.date).getTime(), p: pace(r) }));
-    if (pts.length < 2) return emptyChart(host, "Für einen Verlauf braucht es mindestens zwei Läufe im Zeitraum.");
+    if (pts.length < 2) return emptyChart(host, T.needTwo);
 
     // gleitender Schnitt der letzten 5 Läufe
     pts.forEach((pt, i) => {
@@ -366,7 +535,7 @@
     const y = (p) => m.t + ((p - pMin) / (pMax - pMin)) * ih; // schneller = weiter oben
 
     host.innerHTML = "";
-    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Pace-Verlauf" }, host);
+    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": T.ariaPace }, host);
     const tickStep = Math.max(step, Math.ceil((pMax - pMin) / 4 / step) * step);
     for (let p = pMin; p <= pMax; p += tickStep) {
       el("line", { x1: m.l, x2: W - m.r, y1: y(p), y2: y(p), class: "grid" }, svg);
@@ -399,7 +568,7 @@
       ring.setAttribute("visibility", "visible");
       const r = best.r;
       showTip(
-        `<strong>${fmtDate(r.date)}</strong><br>Pace ${fmtPace(best.p)} /km · ${fmtKm(r.distanceKm, 2)}<br>Ø letzte 5: ${fmtPace(best.avg)} /km${r.avgHr ? `<br>Ø Puls ${r.avgHr}` : ""}`,
+        `<strong>${fmtDate(r.date)}</strong><br>Pace ${fmtPace(best.p)} /km · ${fmtKm(r.distanceKm, 2)}<br>${T.last5}: ${fmtPace(best.avg)} /km${r.avgHr ? `<br>${T.avgHr} ${r.avgHr}` : ""}`,
         e.clientX,
         e.clientY
       );
@@ -428,8 +597,8 @@
     const W = left + weeks * (cell + gap);
     const H = top + 7 * (cell + gap);
     host.innerHTML = "";
-    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Aktivitätskalender" }, host);
-    ["Mo", "", "Mi", "", "Fr", "", ""].forEach((l, i) => {
+    const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": T.ariaHeat }, host);
+    T.heatDays.forEach((l, i) => {
       if (l) el("text", { x: 0, y: top + i * (cell + gap) + cell - 2, class: "axis" }, svg).textContent = l;
     });
     let lastMonth = -1;
@@ -452,7 +621,7 @@
           class: `cell h${level(km)}`,
         }, svg);
         rect.addEventListener("pointermove", (e) =>
-          showTip(`<strong>${WEEKDAYS[parseIso(day).getDay()]}, ${fmtDate(day)}</strong><br>${km ? fmtKm(km, 2) : "kein Lauf"}`, e.clientX, e.clientY)
+          showTip(`<strong>${WEEKDAYS[parseIso(day).getDay()]}, ${fmtDate(day)}</strong><br>${km ? fmtKm(km, 2) : T.noRun}`, e.clientX, e.clientY)
         );
         rect.addEventListener("pointerleave", hideTip);
       }
@@ -499,32 +668,32 @@
     const by = (f) => list.slice().sort(f)[0];
     if (list.length) {
       const longest = by((a, b) => b.distanceKm - a.distanceKm);
-      rows.push(["Längster Lauf", fmtKm(longest.distanceKm, 2), fmtDate(longest.date)]);
+      rows.push([T.rec.longest, fmtKm(longest.distanceKm, 2), fmtDate(longest.date)]);
       const fast = list.filter((r) => r.distanceKm >= 3);
       if (fast.length) {
         const f = by((a, b) => pace(a) - pace(b));
-        rows.push(["Schnellste Pace (ab 3 km)", `${fmtPace(pace(f))} /km`, `${fmtDate(f.date)} · ${fmtKm(f.distanceKm, 1)}`]);
+        rows.push([T.rec.fastest, `${fmtPace(pace(f))} /km`, `${fmtDate(f.date)} · ${fmtKm(f.distanceKm, 1)}`]);
       }
       for (const dist of [5, 10, 21.1]) {
         const c = list.filter((r) => r.distanceKm >= dist);
         if (!c.length) continue;
         const best = c.reduce((a, r) => (pace(r) < pace(a) ? r : a));
-        rows.push([`Beste ${dist === 21.1 ? "Halbmarathon" : dist + " km"}-Zeit*`, fmtDuration(pace(best) * dist), fmtDate(best.date)]);
+        rows.push([T.rec.best(dist), fmtDuration(pace(best) * dist), fmtDate(best.date)]);
       }
       const wk = [...weekTotals(list).entries()].sort((a, b) => b[1] - a[1])[0];
-      rows.push(["Meiste km in einer Woche", fmtKm(wk[1]), `KW ${isoWeek(wk[0])} / ${parseIso(wk[0]).getFullYear()}`]);
-      rows.push(["Längste Serie", `${longestWeekStreak(list)} ${longestWeekStreak(list) === 1 ? "Woche" : "Wochen"}`, "mit mind. einem Lauf"]);
+      rows.push([T.rec.mostWeek, fmtKm(wk[1]), `${T.week} ${isoWeek(wk[0])} / ${parseIso(wk[0]).getFullYear()}`]);
+      rows.push([T.rec.streak, T.weeks(longestWeekStreak(list)), T.rec.streakSub]);
     }
     $("records").innerHTML = rows.length
       ? rows.map(([k, v, s]) => `<div class="rec"><dt>${k}</dt><dd><strong>${v}</strong><span class="muted">${s}</span></dd></div>`).join("") +
-        (rows.some((r) => r[0].includes("*")) ? `<p class="footnote muted">* hochgerechnet aus der Ø-Pace eines mindestens so langen Laufs</p>` : "")
-      : `<p class="muted">Noch keine Läufe im Zeitraum.</p>`;
+        (rows.some((r) => r[0].includes("*")) ? `<p class="footnote muted">${T.rec.footnote}</p>` : "")
+      : `<p class="muted">${T.noRunsYet}</p>`;
   }
 
   // ---------- Jahresziel ----------
   function renderGoal() {
     const y = new Date().getFullYear();
-    $("goalTitle").textContent = `Jahresziel ${y}`;
+    $("goalTitle").textContent = T.goal.title(y);
     const goal = settings.yearGoalKm || 0;
     const km = runs.filter((r) => r.date.startsWith(String(y))).reduce((a, r) => a + r.distanceKm, 0);
     const dayOfYear = daysBetween(`${y}-01-01`, today()) + 1;
@@ -541,21 +710,21 @@
       const left = Math.max(0, goal - km);
       const weeksLeft = Math.max(1, (daysInYear - dayOfYear) / 7);
       html += `
-        <p class="goal-big"><strong>${fmtKm(km, 0)}</strong> <span class="muted">von ${fmtKm(goal, 0)}</span></p>
+        <p class="goal-big"><strong>${fmtKm(km, 0)}</strong> <span class="muted">${T.goal.of} ${fmtKm(goal, 0)}</span></p>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}">
-          <span style="width:${pct}%"></span><i style="left:${Math.min(100, (soll / goal) * 100)}%" title="Soll heute"></i>
+          <span style="width:${pct}%"></span><i style="left:${Math.min(100, (soll / goal) * 100)}%" title="${T.goal.target}"></i>
         </div>
         <ul class="goal-facts">
-          <li><span class="delta ${diff >= 0 ? "good" : "bad"}">${diff >= 0 ? "▲" : "▼"} ${fmtKm(Math.abs(diff), 0)}</span> ${diff >= 0 ? "vor" : "hinter"} dem Plan</li>
-          <li>Noch ${fmtKm(left, 0)}, also etwa ${fmtKm(left / weeksLeft, 1)} pro Woche</li>
-          <li>Prognose bei aktuellem Tempo: ${fmtKm(forecast, 0)}</li>
+          <li><span class="delta ${diff >= 0 ? "good" : "bad"}">${diff >= 0 ? "▲" : "▼"} ${fmtKm(Math.abs(diff), 0)}</span> ${diff >= 0 ? T.goal.ahead : T.goal.behind}</li>
+          <li>${T.goal.left(fmtKm(left, 0), fmtKm(left / weeksLeft, 1))}</li>
+          <li>${T.goal.forecast(fmtKm(forecast, 0))}</li>
         </ul>`;
     } else {
-      html += `<p class="muted">Noch kein Ziel gesetzt. ${km ? `Bisher ${fmtKm(km, 0)} in ${y}, Prognose ${fmtKm(forecast, 0)}.` : ""}</p>`;
+      html += `<p class="muted">${T.goal.none} ${km ? T.goal.soFar(fmtKm(km, 0), y, fmtKm(forecast, 0)) : ""}</p>`;
     }
     html += `<div class="mini-stats">
-        <div><p class="kpi-label">Diese Woche</p><p class="kpi-value sm">${fmtKm(thisWeek)}</p></div>
-        <div><p class="kpi-label">Wochen-Serie</p><p class="kpi-value sm">${streak} ${streak === 1 ? "Woche" : "Wochen"}</p></div>
+        <div><p class="kpi-label">${T.goal.thisWeek}</p><p class="kpi-value sm">${fmtKm(thisWeek)}</p></div>
+        <div><p class="kpi-label">${T.goal.streak}</p><p class="kpi-value sm">${T.weeks(streak)}</p></div>
       </div>`;
     $("goal").innerHTML = html;
   }
@@ -586,7 +755,7 @@
     const all = list.slice().reverse();
     const rows = showAllRows ? all : all.slice(0, ROW_LIMIT);
     $("moreRows").hidden = all.length <= ROW_LIMIT;
-    $("moreRows").textContent = showAllRows ? "Weniger anzeigen" : `Alle ${all.length} Läufe anzeigen`;
+    $("moreRows").textContent = showAllRows ? T.table.less : T.table.all(all.length);
     $("runRows").innerHTML = rows.length
       ? rows
           .map(
@@ -601,12 +770,12 @@
           <td class="num">${r.calories ?? "–"}</td>
           <td class="note">${esc(r.notes)}</td>
           <td class="row-actions">
-            <button type="button" class="link-btn" data-edit="${esc(r.id)}">Bearbeiten</button>
-            <button type="button" class="link-btn danger" data-del="${esc(r.id)}">Löschen</button>
+            <button type="button" class="link-btn" data-edit="${esc(r.id)}">${T.table.edit}</button>
+            <button type="button" class="link-btn danger" data-del="${esc(r.id)}">${T.table.del}</button>
           </td></tr>`
           )
           .join("")
-      : `<tr><td colspan="10" class="muted">Keine Läufe im Zeitraum.</td></tr>`;
+      : `<tr><td colspan="10" class="muted">${T.noRuns}</td></tr>`;
   }
 
   $("moreRows").addEventListener("click", () => {
@@ -620,7 +789,7 @@
     if (edit) openDialog(runs.find((r) => r.id === edit.dataset.edit));
     if (del) {
       const r = runs.find((x) => x.id === del.dataset.del);
-      if (!r || !confirm(`Lauf vom ${fmtDate(r.date)} (${fmtKm(r.distanceKm, 2)}) löschen?`)) return;
+      if (!r || !confirm(T.table.confirmDel(fmtDate(r.date), fmtKm(r.distanceKm, 2)))) return;
       setData(await api(`/api/laeufe?id=${encodeURIComponent(r.id)}`, { method: "DELETE" }));
     }
   });
@@ -642,7 +811,7 @@
     $("customRange").hidden = range.key !== "custom";
     $("fromDate").value = r.from;
     $("toDate").value = r.to;
-    $("rangeLabel").textContent = `${fmtDate(r.from)} bis ${fmtDate(r.to)} · ${list.length} ${list.length === 1 ? "Lauf" : "Läufe"}`;
+    $("rangeLabel").textContent = T.rangeLabel(fmtDate(r.from), fmtDate(r.to), T.runs(list.length));
     $("emptyState").hidden = runs.length > 0;
 
     renderKpis(stats(list), prevStats);
@@ -704,7 +873,7 @@
   function openDialog(run) {
     editingId = run ? run.id : null;
     currentSource = run ? run.source || "manuell" : "manuell";
-    $("dialogTitle").textContent = run ? "Lauf bearbeiten" : "Lauf hinzufügen";
+    $("dialogTitle").textContent = run ? T.dialog.edit : T.dialog.add;
     $("dropzone").hidden = Boolean(run);
     $("formMsg").textContent = "";
     $("shotStatus").textContent = "";
@@ -726,7 +895,7 @@
   $("dialogClose").addEventListener("click", closeDialog);
 
   function updateQueueInfo() {
-    $("queueInfo").textContent = queue.length > 1 ? `Noch ${queue.length - 1} weitere Screenshots` : "";
+    $("queueInfo").textContent = queue.length > 1 ? T.dialog.more(queue.length - 1) : "";
     $("skipBtn").hidden = queue.length < 2;
   }
 
@@ -735,7 +904,7 @@
     const run = {
       date: form.date.value,
       startTime: form.startTime.value,
-      type: form.type.value.trim() || "Outdoor-Lauf",
+      type: form.type.value.trim() || T.defaultType,
       distanceKm: parseNum(form.distanceKm.value),
       durationSec: parseDuration(form.duration.value),
       avgHr: parseNum(form.avgHr.value),
@@ -747,7 +916,7 @@
       source: currentSource,
     };
     if (!run.date || !run.distanceKm || !run.durationSec) {
-      $("formMsg").textContent = "Datum, Distanz und Zeit werden gebraucht.";
+      $("formMsg").textContent = T.dialog.required;
       return;
     }
     $("saveBtn").disabled = true;
@@ -841,12 +1010,12 @@
     try {
       img = await loadImage(file);
     } catch {
-      status.textContent = "Bild konnte nicht gelesen werden.";
+      status.textContent = T.shot.unreadable;
       return;
     }
     preview.src = img.src;
     preview.hidden = false;
-    status.textContent = "Erkenne Werte …";
+    status.textContent = T.shot.reading;
     dz.classList.add("busy");
 
     try {
@@ -856,21 +1025,21 @@
           method: "POST",
           body: JSON.stringify({ image: await toJpegBase64(img), mediaType: "image/jpeg" }),
         });
-        result = { run: data.run, engine: "KI" };
+        result = { run: data.run, engine: T.shot.ai };
       } catch (err) {
         if (!err.data || err.data.fallback !== "ocr") throw err;
-        status.textContent = "Erkenne Werte im Browser (OCR) … das dauert beim ersten Mal etwas.";
+        status.textContent = T.shot.ocr;
         result = { run: parseOcrText(await ocr(img)), engine: "OCR" };
       }
       const r = result.run;
-      currentSource = result.engine === "KI" ? "screenshot-ki" : "screenshot-ocr";
+      currentSource = result.engine === T.shot.ai ? "screenshot-ki" : "screenshot-ocr";
       fillForm({ ...r, date: r.date || today() });
-      const missing = [!r.date && "Datum", !r.distanceKm && "Distanz", !r.durationSec && "Zeit"].filter(Boolean);
+      const missing = [!r.date && T.shot.fields.date, !r.distanceKm && T.shot.fields.dist, !r.durationSec && T.shot.fields.time].filter(Boolean);
       status.textContent = missing.length
-        ? `Erkannt per ${result.engine}. Nicht gefunden: ${missing.join(", ")}. Bitte ergänzen.`
-        : `Erkannt per ${result.engine}. Bitte kurz prüfen und speichern.`;
+        ? T.shot.missing(result.engine, missing.join(", "))
+        : T.shot.ok(result.engine);
     } catch (err) {
-      status.textContent = `${err.message} Du kannst die Werte auch von Hand eintragen.`;
+      status.textContent = `${err.message} ${T.shot.manual}`;
     } finally {
       dz.classList.remove("busy");
     }
@@ -884,7 +1053,7 @@
         const s = document.createElement("script");
         s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
         s.onload = () => resolve(window.Tesseract);
-        s.onerror = () => reject(new Error("OCR konnte nicht geladen werden."));
+        s.onerror = () => reject(new Error(T.shot.ocrFailed));
         document.head.appendChild(s);
       });
     }
@@ -961,13 +1130,16 @@
     if (start) r.startTime = start[1].padStart(5, "0");
 
     const type = t.match(/(Outdoor|Indoor)[\s-]?(Lauf|Run)|Laufband/i);
-    if (type) r.type = /indoor|laufband/i.test(type[0]) ? "Indoor-Lauf" : "Outdoor-Lauf";
+    if (type) r.type = /indoor|laufband/i.test(type[0]) ? T.indoorType : T.defaultType;
 
     const now = new Date();
     if (/\bHeute\b|\bToday\b/i.test(t)) r.date = today();
     else if (/\bGestern\b|\bYesterday\b/i.test(t)) r.date = addDays(today(), -1);
     else {
-      const dm = t.match(/(\d{1,2})\.\s*(Jan|Feb|Mär|Mar|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)[a-zä]*\.?\s*(\d{4})?/i);
+      const MON = "Jan|Feb|Mär|Mar|Apr|Mai|May|Jun|Jul|Aug|Sep|Okt|Oct|Nov|Dez|Dec";
+      let dm = t.match(new RegExp(`(\\d{1,2})\\.?\\s*(${MON})[a-zä]*\\.?,?\\s*(\\d{4})?`, "i"));
+      const en = !dm && t.match(new RegExp(`(${MON})[a-z]*\\.?\\s+(\\d{1,2}),?\\s*(\\d{4})?`, "i"));
+      if (en) dm = [en[0], en[2], en[1], en[3]];
       const dn = t.match(/\b(\d{1,2})\.(\d{1,2})\.(\d{2,4})\b/);
       let d = null;
       if (dm) {
@@ -986,7 +1158,7 @@
 
   // ---------- CSV ----------
   function toCsv() {
-    const head = ["Datum", "Startzeit", "Art", "Distanz (km)", "Zeit", "Pace (min/km)", "Ø Puls", "Max Puls", "Höhenmeter", "Aktive kcal", "Schrittfrequenz", "Notiz"];
+    const head = T.csv.head;
     const q = (v) => (/[";\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
     const lines = runs.map((r) =>
       [
@@ -1001,7 +1173,7 @@
   $("exportCsv").addEventListener("click", () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([toCsv()], { type: "text/csv;charset=utf-8" }));
-    a.download = `laeufe-${today()}.csv`;
+    a.download = `${T.csv.file}-${today()}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -1047,7 +1219,7 @@
       dist: col("distanz", "distance", "km"),
       dur: col("zeit", "dauer", "duration", "time"),
       pace: col("pace", "tempo"),
-      hr: col("ø puls", "puls", "heart", "hr"),
+      hr: col("ø puls", "puls", "avg hr", "heart", "hr"),
       maxHr: col("max"),
       elev: col("höhe", "hoehe", "elevation"),
       kcal: col("kcal", "kalorien", "calories"),
@@ -1088,12 +1260,12 @@
     e.target.value = "";
     if (!file) return;
     const list = csvToRuns(await file.text());
-    if (!list.length) return alert("In der Datei wurden keine Läufe gefunden.");
-    if (!confirm(`${list.length} Läufe importieren?`)) return;
+    if (!list.length) return alert(T.csv.none);
+    if (!confirm(T.csv.confirm(list.length))) return;
     try {
       const data = await api("/api/laeufe", { method: "POST", body: JSON.stringify({ runs: list }) });
       setData(data);
-      alert(`${data.added.length} Läufe importiert${data.skipped ? `, ${data.skipped} übersprungen (Datum, Distanz oder Zeit fehlte)` : ""}.`);
+      alert(T.csv.done(data.added.length, data.skipped));
     } catch (err) {
       alert(err.message);
     }
@@ -1103,7 +1275,7 @@
   document.querySelectorAll("[data-logout]").forEach((b) =>
     b.addEventListener("click", async () => {
       await fetch("/api/admin/session", { method: "DELETE", credentials: "same-origin" });
-      location.replace("/admin/");
+      location.replace(T.adminHome);
     })
   );
 
@@ -1114,7 +1286,7 @@
       setData(data);
     })
     .catch((err) => {
-      if (err.message !== "Nicht angemeldet") $("dashLoading").textContent = `Konnte Daten nicht laden: ${err.message}`;
+      if (err.message !== T.notLoggedIn) $("dashLoading").textContent = T.loadFailed(err.message);
     });
 
   // Für Tests im Browser

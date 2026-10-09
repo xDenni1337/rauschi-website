@@ -1,0 +1,93 @@
+{%- set t = i18n[lang].lan -%}
+{%- set contactUrl = "/en/contact/" if lang == "en" else "/kontakt/" -%}
+<section class="hero">
+  <div class="hero-card">
+    <div class="hero-top">
+      <span class="badge">{{ t.event }}</span>
+      <span class="badge badge-ghost">{{ title }}</span>
+    </div>
+
+    <h1 class="hero-title">{{ title }}</h1>
+
+    <p class="hero-subtitle">
+      <strong>{{ t.start }}:</strong> {{ t.date }}
+      <span class="dot">·</span>
+      <strong>{{ t.status }}:</strong> <span id="cd-status">{{ t.running }}</span>
+    </p>
+
+    <div class="countdown hero-countdown card" aria-live="polite">
+      <div class="countdown-grid">
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-days">–</div>
+          <div class="countdown-label">{{ t.days }}</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-hours">–</div>
+          <div class="countdown-label">{{ t.hours }}</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-minutes">–</div>
+          <div class="countdown-label">{{ t.minutes }}</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-value" id="cd-seconds">–</div>
+          <div class="countdown-label">{{ t.seconds }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ contactUrl }}">{{ t.join }}</a>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  (function () {
+    const T = {{ t | dump | safe }};
+    // Zielzeit: 27.12.2025 16:30 (lokale Zeit des Besuchers)
+    const target = new Date(2025, 11, 27, 16, 30, 0); // 11 = Dezember
+
+    const elDays = document.getElementById("cd-days");
+    const elHours = document.getElementById("cd-hours");
+    const elMinutes = document.getElementById("cd-minutes");
+    const elSeconds = document.getElementById("cd-seconds");
+    const elStatus = document.getElementById("cd-status");
+
+    function pad2(n) { return String(n).padStart(2, "0"); }
+
+    function tick() {
+      const now = new Date();
+      let diff = target - now;
+
+      if (diff <= 0) {
+        elDays.textContent = "0";
+        elHours.textContent = "00";
+        elMinutes.textContent = "00";
+        elSeconds.textContent = "00";
+        // Bis 3 Tage nach Start "läuft", danach ist das Event vorbei
+        elStatus.textContent = diff > -3 * 24 * 3600 * 1000 ? T.live : T.over;
+        if (diff > -3 * 24 * 3600 * 1000) document.documentElement.classList.add("party-on");
+        clearInterval(timer);
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / (24 * 3600));
+      const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      elDays.textContent = String(days);
+      elHours.textContent = pad2(hours);
+      elMinutes.textContent = pad2(minutes);
+      elSeconds.textContent = pad2(seconds);
+
+      elStatus.textContent = T.running;
+    }
+
+    const timer = setInterval(tick, 1000);
+    tick();
+  })();
+</script>
