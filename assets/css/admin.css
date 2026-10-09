@@ -9,6 +9,7 @@
   --heat-0: rgba(15, 23, 42, .06);
   --chart-grid: rgba(15, 23, 42, .08);
   --chart-axis: var(--muted);
+  --hr: #e11d48;
   --content-max: 1120px;
 }
 :root[data-theme="dark"]{
@@ -16,6 +17,7 @@
   --bad: #f87171;
   --heat-0: rgba(255, 255, 255, .06);
   --chart-grid: rgba(255, 255, 255, .08);
+  --hr: #fb7185;
 }
 
 /* Das Dashboard darf etwas breiter sein als die normalen Seiten */
@@ -168,11 +170,18 @@
 .chart .line{ fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .chart .cross{ stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 3 3; }
 .chart .dot-on{ fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.chart .dot.hr{ fill: var(--hr); }
+.chart .line.hr{ stroke: var(--hr); }
+.chart .dot-on.hr{ fill: var(--hr); }
+.chart .axis.hr{ fill: var(--hr); }
+.chart .goal-line{ stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .55; }
+.chart .goal-label{ fill: var(--text); opacity: .7; font-size: 11px; }
 
 .legend{ display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
 .legend span{ display: inline-flex; align-items: center; gap: 6px; }
 .lg-dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .45; }
 .lg-line{ width: 16px; height: 2px; border-radius: 2px; background: var(--accent); }
+.lg-line.hr{ background: var(--hr); }
 
 /* Kalender: eine Farbe, hell nach dunkel */
 .heatmap-wrap{ overflow-x: auto; padding-bottom: 4px; }
@@ -250,6 +259,11 @@
   border-top: 1px solid var(--border);
 }
 .mini-stats p{ margin: 0; }
+.week-goal{ margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.week-goal h3{ margin: 0 0 8px; font-size: 14px; }
+.week-goal .goal-big{ font-size: 15px; margin-bottom: 8px; }
+.week-goal .goal-big strong{ font-size: 22px; }
+.progress.done span{ background: var(--good); }
 
 /* ---------- Tabelle ---------- */
 .table-actions{ display: flex; gap: 6px; flex-wrap: wrap; }

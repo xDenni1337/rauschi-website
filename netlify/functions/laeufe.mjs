@@ -2,7 +2,7 @@
 //   GET    /api/laeufe            -> { runs: [...], settings: {...} }
 //   POST   /api/laeufe            -> { run } oder { runs: [...] } (Import) anlegen
 //   PUT    /api/laeufe?id=...     -> { run } ändern
-//   PUT    /api/laeufe?settings=1 -> { settings } speichern (z. B. Jahresziel)
+//   PUT    /api/laeufe?settings=1 -> { settings } speichern (Jahres- und Wochenziel)
 //   DELETE /api/laeufe?id=...     -> löschen
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "node:crypto";
@@ -98,7 +98,10 @@ export default async (req) => {
 
   if (req.method === "PUT" && url.searchParams.has("settings")) {
     const s = body.settings || {};
-    data.settings = { ...data.settings, yearGoalKm: num(s.yearGoalKm, 0, 20000) };
+    const next = { ...data.settings };
+    if ("yearGoalKm" in s) next.yearGoalKm = num(s.yearGoalKm, 0, 20000);
+    if ("weekGoalKm" in s) next.weekGoalKm = num(s.weekGoalKm, 0, 500);
+    data.settings = next;
     await save(data);
     return json(200, data);
   }

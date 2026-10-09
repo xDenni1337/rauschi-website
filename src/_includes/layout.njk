@@ -142,9 +142,9 @@
     <div class="container footer-inner">
       <p class="muted">© {{ buildYear }} Denni Rauschenberg</p>
       <p class="footer-links">
-        <a href="/impressum/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.imprint }}</a>
+        <a href="{{ '/en/legal-notice/' if lang == 'en' else '/impressum/' }}">{{ ui.footer.imprint }}</a>
         <span class="dot" aria-hidden="true">·</span>
-        <a href="/datenschutz/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.privacy }}</a>
+        <a href="{{ '/en/privacy/' if lang == 'en' else '/datenschutz/' }}">{{ ui.footer.privacy }}</a>
         <span class="dot" aria-hidden="true">·</span>
         <a href="{{ '/en/admin/' if lang == 'en' else '/admin/' }}">Admin</a>
       </p>

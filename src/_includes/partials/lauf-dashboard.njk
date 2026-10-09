@@ -52,8 +52,8 @@
       <div class="card-head">
         <h2 class="card-h">{{ t.dash.pace }}</h2>
         <div class="legend" aria-hidden="true">
-          <span><i class="lg-dot"></i>{{ t.dash.single }}</span>
-          <span><i class="lg-line"></i>{{ t.dash.last5 }}</span>
+          <span><i class="lg-line"></i>{{ t.dash.paceLine }}</span>
+          <span id="hrLegend"><i class="lg-line hr"></i>{{ t.dash.hrLine }}</span>
         </div>
       </div>
       <div class="chart" id="paceChart"></div>
@@ -73,6 +73,7 @@
       </div>
       <form class="goal-form" id="goalForm" hidden>
         <label class="field-inline">{{ t.dash.goalKm }} <input class="input input-sm" type="number" min="0" step="10" id="goalInput" /></label>
+        <label class="field-inline">{{ t.dash.weekGoalKm }} <input class="input input-sm" type="number" min="0" step="1" id="weekGoalInput" /></label>
         <button class="btn btn-primary btn-sm" type="submit">{{ t.dash.save }}</button>
       </form>
       <div id="goal"></div>
