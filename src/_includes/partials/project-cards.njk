@@ -4,6 +4,9 @@
     <a class="card-inner" href="{{ projekt.url }}">
       <div class="card-header">
         <h2 class="card-title">{{ projekt.data.title }}</h2>
+        {%- if projekt.data.neu %}
+        <span class="badge">{{ "New" if lang == "en" else "Neu" }}</span>
+        {%- endif %}
       </div>
 
       {%- if projekt.data.kurz -%}
