@@ -26,6 +26,11 @@ module.exports = function (eleventyConfig) {
     return targetLang === "en" ? "/en/" : "/";
   });
 
+  // Archivierte Projekte (Front Matter "archiviert: true") getrennt von den aktuellen
+  eleventyConfig.addFilter("archived", (items, archived) =>
+    (items || []).filter((item) => Boolean(item.data.archiviert) === archived)
+  );
+
   // Collection: Projekte (Tag "projekte")
   eleventyConfig.addCollection("projekte", function (collectionApi) {
     return collectionApi.getFilteredByTag("projekte");

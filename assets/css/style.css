@@ -788,3 +788,7 @@ a.segment:hover{ text-decoration: none; }
   .site-header .container{ position: relative; }
   .home-hero-inner{ padding: 24px 18px; }
 }
+
+/* Archiv */
+.archive-heading{ margin-top: 2.5rem; }
+.archive-note{ margin: 0 0 1rem; font-size: .92rem; }
