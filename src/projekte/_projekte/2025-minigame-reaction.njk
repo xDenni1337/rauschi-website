@@ -11,38 +11,16 @@ tags: [projekte]
 
 <div class="game card" id="game">
   <div class="game-top">
-  <label class="name-field">
-    <span class="muted">Name</span>
-    <input id="playerName" class="input" type="text" maxlength="18" placeholder="z.B. Denni" />
-  </label>
+    <label class="name-field">
+      <span class="muted">Name</span>
+      <input id="playerName" class="input" type="text" maxlength="18" placeholder="z. B. Denni" autocomplete="nickname" />
+    </label>
 
-  <button class="btn btn-primary" id="btnStart">Start</button>
-  <button class="btn btn-ghost" id="btnReset">Bestwert löschen</button>
-</div>
-
-  <hr />
-
-  <div class="leaderboard">
-    <div class="leaderboard-head">
-      <h2 class="leaderboard-title">Rangliste (global)</h2>
-      <button class="btn btn-ghost" id="btnClearBoard">Rangliste neu laden</button>
-    </div>
-
-    <ol class="leaderboard-list" id="board"></ol>
-    <p class="muted" style="margin-top:10px;">
-      Diese Rangliste ist global und wird über Supabase gespeichert.
-    </p>
+    <button class="btn btn-primary" id="btnStart" type="button">Start</button>
+    <button class="btn btn-ghost" id="btnReset" type="button">Bestwert löschen</button>
   </div>
 
-
-<div class="game-stats">
-    <div><span class="muted">Letztes Ergebnis:</span> <strong id="last">–</strong></div>
-    <div><span class="muted">Bestwert:</span> <strong id="best">–</strong></div>
-  </div>
-</div>
-
-
-  <div class="game-area" id="area" role="button" tabindex="0" aria-label="Spielbereich">
+  <div class="game-area" id="area" role="button" tabindex="0" aria-label="Spielbereich" aria-live="polite">
     <div class="game-text" id="text">Drücke auf „Start“.</div>
   </div>
 
@@ -51,6 +29,16 @@ tags: [projekte]
     <div><span class="muted">Bestwert:</span> <strong id="best">–</strong></div>
   </div>
 </div>
+
+<section class="section card leaderboard">
+  <div class="leaderboard-head">
+    <h2 class="leaderboard-title">Rangliste (global)</h2>
+    <button class="btn btn-ghost" id="btnClearBoard" type="button">Rangliste neu laden</button>
+  </div>
+
+  <ol class="leaderboard-list" id="board"></ol>
+  <p class="muted" style="margin: 12px 0 0;">Diese Rangliste ist global und wird über Supabase gespeichert.</p>
+</section>
 
 <script>
 (() => {

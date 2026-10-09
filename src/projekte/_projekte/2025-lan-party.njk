@@ -1,7 +1,7 @@
 ---
 layout: layout.njk
 title: "LAN Party 2025"
-kurz: "Countdown bis zum Start: 27.12.2025, 11:00 Uhr."
+kurz: "Countdown bis zum Start: 27.12.2025, 16:30 Uhr."
 permalink: /projekte/lan-party-2025/
 tags: [projekte]
 ---
@@ -43,8 +43,7 @@ tags: [projekte]
     </div>
 
     <div class="hero-actions">
-      <a class="btn btn-primary" href="#details">Details</a>
-      <a class="btn btn-ghost" href="/kontakt/">Mitmachen</a>
+      <a class="btn btn-primary" href="/kontakt/">Mitmachen</a>
     </div>
   </div>
 </section>
@@ -72,8 +71,10 @@ tags: [projekte]
         elHours.textContent = "00";
         elMinutes.textContent = "00";
         elSeconds.textContent = "00";
-        elStatus.textContent = "🎉 Es geht los!";
-        document.documentElement.classList.add("party-on");
+        // Bis 3 Tage nach Start "läuft", danach ist das Event vorbei
+        elStatus.textContent = diff > -3 * 24 * 3600 * 1000 ? "🎉 Es geht los!" : "Vorbei – danke fürs Mitmachen!";
+        if (diff > -3 * 24 * 3600 * 1000) document.documentElement.classList.add("party-on");
+        clearInterval(timer);
         return;
       }
 
@@ -91,7 +92,7 @@ tags: [projekte]
       elStatus.textContent = "Countdown läuft";
     }
 
+    const timer = setInterval(tick, 1000);
     tick();
-    setInterval(tick, 1000);
   })();
 </script>

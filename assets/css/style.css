@@ -1,83 +1,139 @@
-/* ---------- Base ---------- */
+/* =========================================================
+   denni-rauschenberg.de
+   Alle Farben laufen über die Tokens unten. Hell/Dunkel wird
+   per <html data-theme="light|dark"> umgeschaltet (siehe layout.njk).
+   ========================================================= */
+
+/* ---------- Tokens ---------- */
 :root{
-  --bg: #ffffff;
-  --surface: rgba(255,255,255,.85);
+  color-scheme: light;
+
+  --bg: #faf7f1;
+  --surface: rgba(255, 255, 255, .82);
+  --card: rgba(255, 255, 255, .78);
+  --card-hover: #ffffff;
+  --soft: rgba(15, 23, 42, .05);
   --text: #0f172a;
-  --muted: #475569;
+  --muted: #4b5567;
   --border: rgba(15, 23, 42, .10);
-  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+  --border-strong: rgba(15, 23, 42, .18);
+  --shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
+  --shadow-lg: 0 2px 4px rgba(15, 23, 42, .05), 0 18px 44px rgba(15, 23, 42, .12);
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: rgba(37, 99, 235, .10);
+  --accent-contrast: #ffffff;
+  --focus: rgba(37, 99, 235, .45);
 
   --radius: 16px;
+  --radius-sm: 12px;
   --max: 960px;
-
-  --link: #0f172a;
-  --link-hover: #0b1220;
-
-  --focus: rgba(59, 130, 246, .45);
-  --accent: #2563eb;
-  --accent-contrast: #ffffff;
-
 }
 
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme]){
-    --bg: #0b1220;
-    --surface: rgba(11,18,32,.75);
-    --text: #e5e7eb;
-    --muted: #a3aab7;
-    --border: rgba(229,231,235,.12);
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-    --link: #e5e7eb;
-    --link-hover: #ffffff;
-    --focus: rgba(96, 165, 250, .45);
-  }
+:root[data-theme="dark"]{
+  color-scheme: dark;
+
+  --bg: #0b1220;
+  --surface: rgba(11, 18, 32, .78);
+  --card: rgba(255, 255, 255, .04);
+  --card-hover: rgba(255, 255, 255, .07);
+  --soft: rgba(255, 255, 255, .06);
+  --text: #e6e9ef;
+  --muted: #a1a9b8;
+  --border: rgba(255, 255, 255, .10);
+  --border-strong: rgba(255, 255, 255, .18);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  --shadow-lg: 0 2px 4px rgba(0, 0, 0, .3), 0 18px 44px rgba(0, 0, 0, .45);
+
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-soft: rgba(96, 165, 250, .14);
+  --focus: rgba(96, 165, 250, .55);
 }
 
+/* Weiche Überblendung nur während des aktiven Umschaltens */
+.theme-anim,
+.theme-anim *,
+.theme-anim *::before,
+.theme-anim *::after{
+  transition: background-color .25s ease, border-color .25s ease, color .25s ease, fill .25s ease !important;
+}
 
-*{ box-sizing: border-box; }
+/* ---------- Base ---------- */
+*, *::before, *::after{ box-sizing: border-box; }
+
 html{ scroll-behavior: smooth; }
-body{
-  background: var(--bg);
-  color: var(--text);
-}
 
 body{
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
   line-height: 1.65;
-  letter-spacing: 0.1px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a{ color: var(--link); text-decoration: none; }
-a:hover{ color: var(--link-hover); text-decoration: underline; }
-a:focus-visible, button:focus-visible{
+a{ color: var(--accent); text-decoration: none; }
+a:hover{ color: var(--accent-hover); text-decoration: underline; text-underline-offset: 3px; }
+
+:focus-visible{
   outline: 3px solid var(--focus);
-  outline-offset: 3px;
+  outline-offset: 2px;
   border-radius: 10px;
 }
 
 .container{
+  width: 100%;
   max-width: var(--max);
   margin: 0 auto;
   padding: 0 20px;
 }
 
 .content{
-  padding: 28px 0 56px;
+  flex: 1;
+  padding-top: 32px;
+  padding-bottom: 64px;
 }
 
 .muted{ color: var(--muted); }
+
+/* ---------- Typography ---------- */
+h1, h2, h3{
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+h1{ font-size: clamp(28px, 4vw, 40px); font-weight: 800; }
+h2{ font-size: clamp(20px, 2.5vw, 26px); margin-top: 32px; }
+h3{ font-size: 18px; }
+
+p{ margin: 0 0 14px; }
+ul, ol{ margin: 0 0 14px; padding-left: 22px; }
+li{ margin: 6px 0; }
+strong{ color: var(--text); }
+
+hr{
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
 
 /* ---------- Header ---------- */
 .site-header{
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(10px);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
+  backdrop-filter: saturate(160%) blur(12px);
 }
 
 .header-inner{
@@ -85,1349 +141,637 @@ a:focus-visible, button:focus-visible{
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 0;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .brand{
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 650;
-  letter-spacing: .2px;
+  color: var(--text);
+  font-weight: 700;
+  flex-shrink: 0;
 }
+.brand:hover{ color: var(--text); text-decoration: none; }
 
 .brand-mark{
   display: grid;
   place-items: center;
   width: 36px;
   height: 36px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  font-size: 14px;
+  border-radius: 11px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .02em;
 }
 
-.brand-text{
-  font-size: 15px;
-}
+.brand-text{ font-size: 15px; }
 
 /* ---------- Nav ---------- */
 .nav{
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  gap: 4px;
 }
-.nav-link{
-  color: var(--text);
-  opacity: .85;
-}
-
-.nav-link:hover{
-  opacity: 1;
-}
-
 
 .nav-link{
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid transparent;
+  padding: 7px 12px;
+  border-radius: 999px;
   color: var(--muted);
   font-size: 14px;
-  text-decoration: none;
+  font-weight: 550;
+  white-space: nowrap;
+  transition: background-color .15s ease, color .15s ease;
 }
-
 .nav-link:hover{
   color: var(--text);
+  background: var(--soft);
   text-decoration: none;
-  background: rgba(15, 23, 42, .05);
-  border-color: var(--border);
 }
-
-@media (prefers-color-scheme: dark){
-  .nav-link:hover{
-    background: rgba(229, 231, 235, .06);
-  }
-}
-
-.nav-cta{
+.nav-link[aria-current="page"]{
   color: var(--text);
-  border-color: var(--border);
-  background: rgba(15, 23, 42, .04);
+  background: var(--soft);
 }
 
-@media (prefers-color-scheme: dark){
-  .nav-cta{ background: rgba(229, 231, 235, .06); }
-}
-.nav-cta{
+.nav-cta,
+.nav-cta[aria-current="page"]{
+  margin-left: 4px;
   background: var(--accent);
   color: var(--accent-contrast);
-  padding: 8px 14px;
-  border-radius: 999px;
 }
-
 .nav-cta:hover{
-  filter: brightness(1.05);
+  background: var(--accent-hover);
+  color: var(--accent-contrast);
 }
 
-
-/* ---------- Typography ---------- */
-h1, h2, h3{
-  line-height: 1.2;
-  letter-spacing: -0.4px;
-  margin: 0 0 12px;
-}
-
-h1{
-  font-size: clamp(28px, 4vw, 42px);
-  margin-top: 6px;
-}
-
-h2{
-  font-size: clamp(20px, 2.5vw, 28px);
-  margin-top: 26px;
-}
-h1, h2, h3{
-  color: var(--text);
-  letter-spacing: -0.4px;
-}
-h1{
-  font-weight: 800;
-}
-
-
-p{ margin: 0 0 14px; }
-
-ul{ margin: 0 0 14px 18px; }
-li{ margin: 6px 0; }
-
-hr{
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 28px 0;
-}
-
-/* ---------- Nice content blocks (optional) ---------- */
-.card{
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px 18px;
-  background: rgba(255,255,255,.6);
-}
-
-@media (prefers-color-scheme: dark){
-  .card{ background: rgba(11,18,32,.55); }
-}
-
-/* ---------- Footer ---------- */
-.site-footer{
-  border-top: 1px solid var(--border);
-  padding: 22px 0 34px;
-}
-
-.footer-inner{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.footer-links{ margin: 0; }
-.dot{ color: var(--muted); margin: 0 6px; }
-
-.muted{
-  color: var(--muted);
-}
-
-
-/* ---------- Accessibility ---------- */
-.skip-link{
-  position: absolute;
-  left: -9999px;
-  top: 10px;
-  background: var(--text);
-  color: var(--bg);
-  padding: 10px 12px;
-  border-radius: 12px;
-}
-.skip-link:focus{ left: 20px; }
-
-/* ---------- Projects cards ---------- */
-.cards{
-  display: grid;
-  grid-template-columns: 1fr; /* immer eine Spalte */
-  gap: 18px;                 /* mehr Abstand */
-  margin-top: 16px;
-}
-
-.card-link{
-  padding: 0;
-}
-
-.card-inner{
-  display: block;
-  padding: 18px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  box-shadow: var(--shadow);
-  text-decoration: none;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.card-inner:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 18px 44px rgba(2,6,23,.18);
-}
-.card-link{
-  overflow: visible;
-}
-
-.card-inner{
+/* ---------- Settings (Zahnrad + Popover) ---------- */
+.settings{
   position: relative;
-  z-index: 0;
+  margin-left: 4px;
 }
 
-.card-inner:hover{
-  z-index: 1; /* falls Hover leicht hochgeht */
-}
-
-
-@media (prefers-color-scheme: dark){
-  .card-inner{ background: rgba(11,18,32,.55); }
-}
-
-.card-header{
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.card-title{
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.25;
-}
-
-.card-desc{
-  margin: 10px 0 0;
+.icon-btn{
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
   color: var(--muted);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 }
-
-.card-cta{
-  display: inline-block;
-  margin-top: 14px;
-  font-size: 14px;
+.icon-btn:hover,
+.icon-btn[aria-expanded="true"]{
   color: var(--text);
-  opacity: .9;
-}
-/* ---------- Countdown ---------- */
-.countdown{
-  margin-top: 16px;
+  background: var(--soft);
+  border-color: var(--border);
 }
 
-.countdown-grid{
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+.gear{
+  display: block;
+  transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
 }
+.icon-btn:hover .gear{ transform: rotate(45deg); }
+.icon-btn[aria-expanded="true"] .gear{ transform: rotate(90deg); }
 
-@media (min-width: 720px){
-  .countdown-grid{
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.countdown-item{
+.settings-panel{
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 296px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 12px;
-  text-align: center;
-  background: rgba(255,255,255,.45);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  transform-origin: top right;
+  animation: pop-in .16s ease-out;
+}
+.settings-panel[hidden]{ display: none; }
+
+@keyframes pop-in{
+  from{ opacity: 0; transform: translateY(-4px) scale(.97); }
+  to{ opacity: 1; transform: none; }
 }
 
-@media (prefers-color-scheme: dark){
-  .countdown-item{
-    background: rgba(11,18,32,.40);
-  }
+.settings-title{
+  margin: 2px 2px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
 }
 
-.countdown-value{
-  font-size: clamp(22px, 3.5vw, 34px);
-  font-weight: 750;
-  letter-spacing: -0.6px;
-  line-height: 1.1;
-}
-
-.countdown-label{
-  margin-top: 6px;
+.settings-hint{
+  margin: 10px 2px 0;
   font-size: 13px;
   color: var(--muted);
 }
 
-.countdown-value{
+/* Segmented Control: Hell | System | Dunkel */
+.segmented{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--soft);
+  border: 1px solid var(--border);
+}
+
+.segment{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 6px 7px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.segment svg{ width: 18px; height: 18px; }
+.segment:hover{ color: var(--text); }
+.segment[aria-checked="true"]{
+  background: var(--bg);
   color: var(--text);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .08), 0 2px 8px rgba(15, 23, 42, .08);
 }
-#cd-days{
-  color: var(--accent);
+:root[data-theme="dark"] .segment[aria-checked="true"]{
+  background: rgba(255, 255, 255, .12);
+  box-shadow: none;
 }
+.segment[aria-checked="true"] svg{ color: var(--accent); }
+
 /* ---------- Buttons ---------- */
 .btn{
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 10px 18px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  text-decoration: none;
+  border: 1px solid transparent;
+  font: inherit;
   font-size: 14px;
   font-weight: 650;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
 }
 .btn:hover{ text-decoration: none; }
+.btn:active{ transform: translateY(1px); }
 
 .btn-primary{
   background: var(--accent);
   color: var(--accent-contrast);
-  border-color: transparent;
-  box-shadow: 0 14px 40px rgba(37, 99, 235, .25);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, .25);
 }
-.btn-primary:hover{ filter: brightness(1.05); }
+.btn-primary:hover{ background: var(--accent-hover); color: var(--accent-contrast); }
 
 .btn-ghost{
-  background: rgba(2,6,23,.04);
+  background: var(--soft);
+  border-color: var(--border);
   color: var(--text);
 }
-@media (prefers-color-scheme: dark){
-  .btn-ghost{ background: rgba(229,231,235,.06); }
+.btn-ghost:hover{ border-color: var(--border-strong); color: var(--text); }
+
+/* ---------- Badges ---------- */
+.badge{
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(37, 99, 235, .28);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
 }
-/* ---------- Event Hero (clean & contrast) ---------- */
-.hero{
-  margin-top: 12px;
+.badge-ghost{
+  border-color: var(--border);
+  background: var(--soft);
+  color: var(--muted);
 }
 
-.hero-card{
-  background: linear-gradient(180deg, #0b1220, #0f172a);
-  color: #f8fafc;
-  border-radius: 22px;
-  padding: 28px 22px;
-  box-shadow: 0 30px 80px rgba(2,6,23,.55);
+/* ---------- Cards ---------- */
+.card{
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
 }
+
+.cards{
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.card-link{ padding: 0; }
+
+.card-inner{
+  display: block;
+  height: 100%;
+  padding: 18px 20px;
+  border-radius: inherit;
+  color: inherit;
+  transition: background-color .15s ease;
+}
+.card-link{
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.card-link:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+}
+.card-inner:hover{
+  color: inherit;
+  text-decoration: none;
+  background: var(--card-hover);
+}
+
+.card-title{ margin: 0; font-size: 18px; }
+.card-desc{ margin: 8px 0 0; color: var(--muted); }
+.card-cta{
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ---------- Home ---------- */
+.home-hero{ padding-top: 8px; }
+
+.home-hero-inner{
+  padding: 32px 24px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, var(--accent-soft), transparent 55%),
+    var(--card);
+  box-shadow: var(--shadow);
+}
+
+.home-badges{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.home-title{
+  margin: 0 0 10px;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.home-subtitle{
+  max-width: 62ch;
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.home-actions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 28px;
+}
+@media (min-width: 720px){
+  .home-grid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+.tile{
+  display: block;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg);
+  color: inherit;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+:root[data-theme="dark"] .tile{ background: var(--card); }
+.tile:hover{
+  color: inherit;
+  text-decoration: none;
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.tile-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.tile-kicker{ color: var(--muted); font-size: 13px; font-weight: 700; }
+.tile-tag{
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.tile-title{ margin: 0 0 4px; font-size: 18px; }
+.tile-text{ margin: 0; color: var(--muted); font-size: 15px; }
+
+/* ---------- Event-Hero (LAN Party) ----------
+   Bewusst in beiden Themes dunkel: wirkt wie ein Event-Plakat. */
+.hero-card{
+  padding: 28px 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(59, 130, 246, .28), transparent 55%),
+    linear-gradient(180deg, #0f172a, #0b1220);
+  color: #f1f5f9;
+  box-shadow: var(--shadow-lg);
+}
+.hero-card .hero-title,
+.hero-card strong{ color: #f8fafc; }
 
 .hero-top{
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
 }
-
-.badge{
-  background: rgba(37,99,235,.15);
-  border: 1px solid rgba(37,99,235,.4);
-  color: #e5edff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 999px;
+.hero-card .badge{
+  border-color: rgba(96, 165, 250, .45);
+  background: rgba(59, 130, 246, .18);
+  color: #dbeafe;
 }
-
-.badge-ghost{
-  background: transparent;
-  border-color: rgba(255,255,255,.25);
-  color: #c7d2fe;
+.hero-card .badge-ghost{
+  border-color: rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .8);
 }
 
 .hero-title{
   margin: 0 0 6px;
-  font-size: clamp(28px, 5vw, 42px);
+  font-size: clamp(30px, 5vw, 44px);
   font-weight: 900;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.03em;
 }
 
 .hero-subtitle{
   margin: 0 0 20px;
-  color: #c7d2fe;
+  color: rgba(255, 255, 255, .78);
   font-size: 15px;
 }
+.hero-subtitle .dot{ color: rgba(255, 255, 255, .4); margin: 0 6px; }
 
-/* ---------- Countdown (high contrast) ---------- */
 .hero-countdown{
-  background: rgba(2,6,23,.55);
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, .12);
   border-radius: 18px;
-  padding: 16px;
+  background: rgba(255, 255, 255, .05);
 }
 
 .countdown-grid{
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 560px){
+  .countdown-grid{ grid-template-columns: repeat(4, 1fr); }
 }
 
 .countdown-item{
-  background: #020617;
-  border-radius: 14px;
   padding: 14px 10px;
   text-align: center;
-  border: 1px solid rgba(255,255,255,.08);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .05));
 }
 
 .countdown-value{
+  color: #ffffff;
   font-size: clamp(26px, 4vw, 40px);
   font-weight: 900;
-  color: #e5edff;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-
-#cd-days{
-  color: #60a5fa; /* Akzent für Tage */
-}
+#cd-days{ color: #93c5fd; }
 
 .countdown-label{
-  margin-top: 6px;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, .65);
   font-size: 12px;
-  color: #94a3b8;
-  letter-spacing: .3px;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 
-/* ---------- Actions ---------- */
 .hero-actions{
   display: flex;
-  gap: 12px;
-  margin-top: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
 }
+.hero-card .btn-ghost{
+  background: rgba(255, 255, 255, .06);
+  border-color: rgba(255, 255, 255, .22);
+  color: #f1f5f9;
+}
+.hero-card .btn-ghost:hover{ background: rgba(255, 255, 255, .12); }
 
-.btn-primary{
-  background: #2563eb;
-  color: white;
-  border-radius: 999px;
-  padding: 10px 18px;
-  font-weight: 700;
-  box-shadow: 0 10px 30px rgba(37,99,235,.45);
-}
-
-.btn-ghost{
-  color: #e5edff;
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 999px;
-  padding: 10px 18px;
-}
-
-
-/* Countdown: mehr „Punch“ */
-.countdown-item{
-  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.55));
-}
-@media (prefers-color-scheme: dark){
-  .countdown-item{
-    background: linear-gradient(180deg, rgba(11,18,32,.78), rgba(11,18,32,.45));
-  }
-}
-
-.countdown-value{
-  text-shadow: 0 1px 0 rgba(0,0,0,.06);
-}
-
-/* Party Moment (wenn countdown fertig) */
-.party-on .hero::before{
-  background: radial-gradient(closest-side, rgba(16,185,129,.22), transparent 70%);
-}
 .party-on .countdown-item{
-  border-color: rgba(16,185,129,.35);
-  animation: pop .8s ease-in-out infinite alternate;
+  border-color: rgba(16, 185, 129, .5);
+  animation: bounce .8s ease-in-out infinite alternate;
 }
-@keyframes pop{
+@keyframes bounce{
   from{ transform: translateY(0); }
-  to{ transform: translateY(-2px); }
+  to{ transform: translateY(-3px); }
 }
 
-/* Sections */
-.section{
-  margin-top: 26px;
-}
-.section h2{
-  margin-bottom: 12px;
-}
-.section .cards{
-  gap: 14px;
-}
-.section .card{
-  padding: 16px 16px;
-}
-.section h3{
-  margin-top: 0;
-  margin-bottom: 10px;
-}
+/* ---------- Sections ---------- */
+.section{ margin-top: 20px; }
+
 /* ---------- Minigame: Reaction Test ---------- */
 .game-top{
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
 }
 
-.game-area{
-  user-select: none;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  height: 220px;
-  display: grid;
-  place-items: center;
-  background: #0f172a;
-  color: #e5e7eb;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-}
-
-.game-area:focus-visible{
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-}
-
-.game-area[data-mode="idle"]{
-  background: #0f172a;
-}
-.game-area[data-mode="waiting"]{
-  background: #b45309; /* amber */
-}
-.game-area[data-mode="ready"]{
-  background: #16a34a; /* green */
-}
-.game-area[data-mode="done"]{
-  background: #1d4ed8; /* blue */
-}
-
-.game-text{
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.2px;
-  text-align: center;
-  padding: 0 14px;
-}
-
-.game-stats{
-  margin-top: 14px;
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-}
 .name-field{
   display: grid;
-  gap: 6px;
-  min-width: 220px;
+  gap: 4px;
+  flex: 1 1 220px;
+  font-size: 14px;
 }
 
 .input{
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  width: 100%;
   padding: 10px 12px;
-  font-size: 14px;
-  background: var(--card-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
   color: var(--text);
+  font: inherit;
+  font-size: 15px;
 }
 .input::placeholder{ color: var(--muted); }
+.input:focus-visible{ border-color: var(--accent); }
+
+.game-area{
+  display: grid;
+  place-items: center;
+  height: 220px;
+  margin-top: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: #0f172a;
+  color: #f1f5f9;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color .12s ease;
+}
+.game-area[data-mode="waiting"]{ background: #b45309; }
+.game-area[data-mode="ready"]{ background: #16a34a; }
+.game-area[data-mode="done"]{ background: #1d4ed8; }
+
+.game-text{
+  padding: 0 16px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.game-stats{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 14px;
+}
 
 .leaderboard-head{
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap;
 }
+.leaderboard-title{ margin: 0; }
 
 .leaderboard-list{
-  list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
   display: grid;
-  gap: 10px;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .board-row{
   display: grid;
-  grid-template-columns: 56px 1fr auto;
-  gap: 12px;
+  grid-template-columns: 48px 1fr auto;
   align-items: center;
-  padding: 12px 12px;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(255,255,255,.6);
-}
-
-@media (prefers-color-scheme: dark){
-  .board-row{ background: rgba(11,18,32,.55); }
+  border-radius: var(--radius-sm);
+  background: var(--bg);
 }
 .rank{ color: var(--muted); font-weight: 700; }
 .player{ font-weight: 700; }
-.score{ font-variant-numeric: tabular-nums; font-weight: 800; }
-/* ---------- Theme override via data-theme ---------- */
-:root[data-theme="dark"]{
-  --bg: #0b1220;
-  --surface: rgba(11,18,32,.75);
-  --text: #e5e7eb;
-  --muted: #a3aab7;
-  --border: rgba(229,231,235,.12);
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
-  --link: #e5e7eb;
-  --link-hover: #ffffff;
-}
-:root[data-theme="light"]{
-  --bg: #fbf7ef;                 /* creme */
-  --surface: rgba(255,255,255,.85);
-  --text: #0f172a;
-  --muted: #475569;
-  --border: rgba(15, 23, 42, .10);
-  --shadow: 0 10px 30px rgba(15, 23, 42, .08);
-  --link: #0f172a;
-  --link-hover: #0b1220;
-  --focus: rgba(59, 130, 246, .45);
-}
+.score{ font-weight: 800; font-variant-numeric: tabular-nums; }
 
-
-/* ---------- Settings (gear + panel) ---------- */
-.settings{ position: relative; }
-.icon-btn{
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: var(--shadow);
-  cursor: pointer;
+/* ---------- Footer ---------- */
+.site-footer{
+  border-top: 1px solid var(--border);
+  padding: 22px 0 32px;
+  font-size: 14px;
 }
-@media (prefers-color-scheme: dark){
-  .icon-btn{ background: rgba(11,18,32,.55); }
-}
-.icon-btn:hover{ transform: translateY(-1px); }
-
-.settings-panel{
-  position: absolute;
-  right: 0;
-  top: 48px;
-  width: 320px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  color: var(--text);
-  z-index: 9999;
-  box-shadow: var(--shadow);
-  padding: 12px;
-  display: none;
-}
-.settings-panel.open{ display: block; }
-
-.settings-row{
+.footer-inner{
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--border);
+  gap: 8px 16px;
 }
-.settings-row-last{ border-bottom: none; }
+.site-footer p{ margin: 0; }
+.footer-links a{ color: var(--muted); }
+.footer-links a:hover{ color: var(--text); }
+.dot{ color: var(--muted); margin: 0 6px; }
 
-.settings-title{ font-weight: 800; font-size: 14px; }
-.settings-hint{ color: var(--muted); font-size: 13px; }
+/* ---------- Accessibility ---------- */
+.skip-link{
+  position: absolute;
+  left: -9999px;
+  top: 10px;
+  z-index: 100;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+}
+.skip-link:focus{ left: 20px; }
 
-.select{
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 10px;
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* ---------- Home hero ---------- */
-.home-hero{
-  padding: 18px 0 10px;
-}
-.home-hero-inner{
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: var(--shadow);
-  background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.55));
-  padding: 26px 20px;
-}
-@media (prefers-color-scheme: dark){
-  .home-hero-inner{
-    background: linear-gradient(180deg, rgba(11,18,32,.75), rgba(11,18,32,.55));
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
 
-.home-badges{ display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-
-.home-title{
-  margin: 0 0 10px;
-  font-size: clamp(30px, 5vw, 46px);
-  font-weight: 900;
-  letter-spacing: -0.8px;
-}
-.home-subtitle{
-  margin: 0 0 18px;
-  color: var(--muted);
-  max-width: 70ch;
-}
-
-.home-actions{ display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-
-/* Tiles */
-.home-grid{
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
-@media (min-width: 720px){
-  .home-grid{ grid-template-columns: 1fr 1fr 1fr; }
-}
-.tile{
-  display: block;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px 16px;
-  background: rgba(255,255,255,.65);
-  box-shadow: var(--shadow);
-  text-decoration: none;
-}
-@media (prefers-color-scheme: dark){
-  .tile{ background: rgba(11,18,32,.55); }
-}
-.tile:hover{ text-decoration: none; transform: translateY(-2px); }
-
-.tile-top{ display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-.tile-kicker{ color: var(--muted); font-size: 13px; font-weight: 700; }
-.tile-tag{
-  font-size: 12px;
-  font-weight: 800;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: rgba(2,6,23,.03);
-}
-@media (prefers-color-scheme: dark){
-  .tile-tag{ background: rgba(229,231,235,.06); }
-}
-
-.tile-title{ margin: 0 0 6px; font-size: 18px; }
-.tile-text{ margin: 0; color: var(--muted); }
-/* ===========================
-   POLISH: White-mode harmony
-   + Apple-like theme switch
-   + Gear icon fix
-   =========================== */
-
-/* 1) Harmonisiere Oberflächen im Light Mode */
-:root[data-theme="light"]{
-  --bg: #fbf7ef;
-  --surface: rgba(255,255,255,.88);
-  --card-bg: rgba(255,255,255,.72); /* für cards/tiles */
-  --tile-bg: rgba(255,255,255,.72);
-  --stroke: rgba(15,23,42,.12);
-}
-
-/* Dark Mode Oberflächen */
-:root[data-theme="dark"]{
-  --card-bg: rgba(11,18,32,.62);
-  --tile-bg: rgba(11,18,32,.62);
-  --stroke: rgba(229,231,235,.14);
-}
-
-/* Cards/Tiles/Kacheln einheitlich */
-.card,
-.card-inner,
-.tile,
-.home-hero-inner{
-  background: var(--card-bg);
-  border-color: var(--stroke);
-}
-
-/* Hover-Flächen im Light Mode etwas softer */
-.nav-link:hover{
-  background: rgba(15, 23, 42, .04);
-}
-
-/* 2) Settings Panel besser lesbar (immer Surface) */
-.settings-panel{
-  background: var(--surface);
-  border-color: var(--stroke);
-}
-
-/* 3) Gear Icon fix: saubere Größe + Farbe */
-.icon-btn{
-  background: var(--surface);
-  color: var(--text);
-  border-color: var(--stroke);
-  -webkit-font-smoothing: antialiased;
-  transform: translateZ(0);
-}
-
-.icon-btn svg{
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-
-/* 4) Apple-like Switch */
-.switch{
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 46px;
-  height: 28px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.switch input{
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.switch-track{
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  background: rgba(15,23,42,.12);
-  border: 1px solid var(--stroke);
-  transition: background .18s ease, border-color .18s ease;
-}
-
-.switch-thumb{
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: 0 8px 18px rgba(0,0,0,.18);
-  transition: transform .18s ease;
-}
-
-/* ON state (Apple-green) */
-.switch input:checked ~ .switch-track{
-  background: rgba(34,197,94,.85);
-  border-color: rgba(34,197,94,.55);
-}
-.switch input:checked ~ .switch-thumb{
-  transform: translateX(18px);
-}
-
-/* Dark mode switch surfaces */
-:root[data-theme="dark"] .switch-track{
-  background: rgba(255,255,255,.14);
-}
-:root[data-theme="dark"] .switch-thumb{
-  background: rgba(255,255,255,.92);
-}
-/* ===== Gear icon centering fix ===== */
-.icon-btn{
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  line-height: 0 !important;
-}
-
-.icon-btn svg{
-  display: block !important;
-  width: 20px !important;
-  height: 20px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible;
-}
-
-/* ===== Typography & contrast polish (end of file) ===== */
-
-/* Grundlesbarkeit */
-body{
-  text-rendering: geometricPrecision;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Muted nicht zu blass */
-:root[data-theme="light"]{
-  --muted: rgba(15,23,42,.72);   /* vorher zu hell */
-}
-
-/* Tile/Card Text klarer */
-.tile-title, .card-title, h1, h2, h3{
-  letter-spacing: -0.3px;
-}
-
-.tile-text, .card-desc, p{
-  color: var(--muted);
-}
-
-/* Badges/Tags im Light Mode: weniger “ausgewaschen” */
-:root[data-theme="light"] .badge{
-  background: rgba(37,99,235,.10);
-  border-color: rgba(37,99,235,.28);
-  color: rgba(15,23,42,.85);
-}
-
-:root[data-theme="light"] .badge-ghost{
-  background: rgba(15,23,42,.04);
-  border-color: rgba(15,23,42,.10);
-  color: rgba(15,23,42,.78);
-}
-
-/* Tile Tag (Event/Game/Übersicht) besser lesbar */
-:root[data-theme="light"] .tile-tag{
-  background: rgba(15,23,42,.04);
-  border-col
-:root[data-theme="light"] .tile,
-:root[data-theme="light"] .card-inner{
-  background: rgba(255,255,255,.78);
-  border-color: rgba(15,23,42,.10);
-}
-.icon-btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 0;
-}
-
-/* Das Icon wird als Maske genommen, die Farbe kommt von background-color */
-.gear-mask{
-  width: 20px;
-  height: 20px;
-  display: block;
-  background-color: var(--text);
-
-  -webkit-mask: url("/assets/icons/gear-wheel-304395.svg") no-repeat center / contain;
-  mask: url("/assets/icons/gear-wheel-304395.svg") no-repeat center / contain;
-}
-/* Zahnrad sichtbar & zentriert */
-.icon-btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  line-height: 0;
-}
-
-.gear-img{
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-/* ===== DEBUG: force gear icon visible ===== */
-#settingsBtn{
-  background: red !important;     /* nur zum Test */
-}
-
-#settingsBtn img{
-  display: block !important;
-  width: 24px !important;
-  height: 24px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-  position: relative !important;
-  z-index: 99999 !important;
-}
-/* ===== Settings gear: final visible version ===== */
-.icon-btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.gear-img{
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-/* === Gear button = exakt wie nav-link === */
-.icon-btn{
-  /* exakt gleiche Basis wie .nav-link */
-  padding: 8px 12px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  background: transparent;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  color: var(--muted);
-  line-height: 1;        /* WICHTIG: verhindert Extra-Höhe */
-  height: auto;          /* KEINE feste Höhe */
-  width: auto;           /* KEINE feste Breite */
-}
-
-.icon-btn:hover{
-  color: var(--text);
-  background: rgba(15, 23, 42, .05);
-  border-color: var(--border);
-}
-
-@media (prefers-color-scheme: dark){
-  .icon-btn:hover{
-    background: rgba(229,231,235,.06);
+/* ---------- Mobile ---------- */
+@media (max-width: 720px){
+  .header-inner{ flex-wrap: wrap; row-gap: 8px; }
+  .brand{ margin-right: auto; }
+  .nav{
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -4px;
   }
+  .nav::-webkit-scrollbar{ display: none; }
+  /* Zahnrad bleibt oben rechts neben dem Logo */
+  .settings{ position: static; }
+  .icon-btn{
+    position: absolute;
+    top: 12px;
+    right: 20px;
+  }
+  .settings-panel{
+    right: 16px;
+    top: 58px;
+    width: min(296px, calc(100vw - 32px));
+  }
+  .site-header .container{ position: relative; }
+  .home-hero-inner{ padding: 24px 18px; }
 }
-
-/* Icon selbst */
-.gear-img{
-  width: 16px;          /* kleiner als vorher */
-  height: 16px;
-  display: block;
-}
-/* ==========================
-   Countdown Page: unify colors with theme tokens
-   ========================== */
-
-/* Hero container: gleiche „Designsprache“ wie Seite */
-.hero-card{
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--text) 10%, var(--bg) 90%),
-    color-mix(in srgb, var(--text) 18%, var(--bg) 82%)
-  );
-  color: var(--text);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-/* In Light Mode darf Hero ruhig dunkler wirken (edler Look) */
-:root[data-theme="light"] .hero-card{
-  background: linear-gradient(180deg, #0b1220, #0f172a);
-  color: #f8fafc;
-  border-color: rgba(15,23,42,.12);
-}
-
-/* Badge Farben passend */
-:root[data-theme="light"] .badge{
-  background: rgba(37,99,235,.14);
-  border-color: rgba(37,99,235,.35);
-  color: #eaf1ff;
-}
-:root[data-theme="light"] .badge-ghost{
-  background: rgba(255,255,255,.08);
-  border-color: rgba(255,255,255,.18);
-  color: rgba(255,255,255,.78);
-}
-
-/* Hero Subtitle lesbar */
-:root[data-theme="light"] .hero-subtitle{
-  color: rgba(255,255,255,.78);
-}
-
-/* Countdown Bereich: statt grauem „Kasten“ lieber Surface */
-.hero-countdown{
-  background: color-mix(in srgb, var(--surface) 65%, transparent);
-  border: 1px solid var(--border);
-}
-
-/* Countdown Kacheln: nicht dieses harte grau, sondern einheitlich */
-.countdown-item{
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: none;
-}
-
-/* Werte/Labels passend */
-.countdown-value{
-  color: var(--text);
-}
-.countdown-label{
-  color: var(--muted);
-}
-
-/* In Light Mode: Countdown-Kacheln im Hero sollen leicht „glassen“ */
-:root[data-theme="light"] .hero-countdown{
-  background: rgba(255,255,255,.10);
-  border-color: rgba(255,255,255,.14);
-}
-:root[data-theme="light"] .countdown-item{
-  background: rgba(255,255,255,.10);
-  border-color: rgba(255,255,255,.14);
-}
-:root[data-theme="light"] .countdown-value{
-  color: #ffffff;
-}
-:root[data-theme="light"] .countdown-label{
-  color: rgba(255,255,255,.70);
-}
-
-/* Buttons im Hero: Ghost Button war bei dir weiß/konflikt */
-:root[data-theme="light"] .hero .btn-ghost{
-  color: rgba(255,255,255,.88);
-  border-color: rgba(255,255,255,.22);
-  background: rgba(255,255,255,.06);
-}
-:root[data-theme="light"] .hero .btn-ghost:hover{
-  background: rgba(255,255,255,.10);
-}
-/* ==========================
-   LAN Party 2025: Fix visibility in LIGHT mode
-   ========================== */
-
-/* Wenn du auf der LAN-Party-Seite eine .hero / .hero-card nutzt */
-:root[data-theme="light"] .hero-card{
-  background: linear-gradient(180deg, #0b1220, #0f172a);
-  color: #f8fafc;
-}
-
-/* Titel/Subtitles im Hero sichtbar */
-:root[data-theme="light"] .hero-card .hero-title{
-  color: #f8fafc;
-}
-:root[data-theme="light"] .hero-card .hero-subtitle{
-  color: rgba(255,255,255,.78);
-}
-
-/* Badges/Tags im Hero: sichtbar auf dunklem Hintergrund */
-:root[data-theme="light"] .hero-card .badge{
-  background: rgba(37,99,235,.16);
-  border: 1px solid rgba(37,99,235,.45);
-  color: #eaf1ff;
-}
-:root[data-theme="light"] .hero-card .badge-ghost{
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.18);
-  color: rgba(255,255,255,.85);
-}
-
-/* Countdown-Kacheln im Hero: “Glas” Look, Text sichtbar */
-:root[data-theme="light"] .hero-card .hero-countdown{
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.14);
-}
-:root[data-theme="light"] .hero-card .countdown-item{
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.14);
-}
-:root[data-theme="light"] .hero-card .countdown-value{
-  color: #ffffff;
-}
-:root[data-theme="light"] .hero-card .countdown-label{
-  color: rgba(255,255,255,.70);
-}
-
-/* Hero-Buttons: Ghost sichtbar */
-:root[data-theme="light"] .hero-card .btn-ghost{
-  color: rgba(255,255,255,.90);
-  border-color: rgba(255,255,255,.22);
-  background: rgba(255,255,255,.06);
-}
-:root[data-theme="light"] .hero-card .btn-ghost:hover{
-  background: rgba(255,255,255,.10);
-}
-
-/* =========================================
-   LAN Party 2025: FORCE visibility in light
-   (because older hero rules override)
-   ========================================= */
-
-:root[data-theme="light"] .hero-card{
-  background: linear-gradient(180deg, #0b1220, #0f172a) !important;
-  color: #f8fafc !important;
-}
-
-/* Titel/Überschriften im Hero */
-:root[data-theme="light"] .hero-card h1,
-:root[data-theme="light"] .hero-card h2,
-:root[data-theme="light"] .hero-card h3,
-:root[data-theme="light"] .hero-title{
-  color: #f8fafc !important;
-  opacity: 1 !important;
-}
-
-/* Kleine Infos (Start/Status) */
-:root[data-theme="light"] .hero-card,
-:root[data-theme="light"] .hero-card p,
-:root[data-theme="light"] .hero-card .muted{
-  color: rgba(255,255,255,.85) !important;
-}
-
-/* Badge / Tag sichtbar */
-:root[data-theme="light"] .hero-card .badge{
-  background: rgba(37,99,235,.18) !important;
-  border: 1px solid rgba(37,99,235,.50) !important;
-  color: #eaf1ff !important;
-}
-:root[data-theme="light"] .hero-card .badge-ghost{
-  background: rgba(255,255,255,.10) !important;
-  border: 1px solid rgba(255,255,255,.22) !important;
-  color: rgba(255,255,255,.90) !important;
-}
-
-/* Countdown area + tiles (glass) */
-:root[data-theme="light"] .hero-card .hero-countdown{
-  background: rgba(255,255,255,.10) !important;
-  border: 1px solid rgba(255,255,255,.16) !important;
-}
-
-:root[data-theme="light"] .hero-card .countdown-item{
-  background: rgba(255,255,255,.10) !important;
-  border: 1px solid rgba(255,255,255,.16) !important;
-}
-
-:root[data-theme="light"] .hero-card .countdown-value{
-  color: #ffffff !important;
-}
-
-:root[data-theme="light"] .hero-card .countdown-label{
-  color: rgba(255,255,255,.72) !important;
-}
-/* ==========================
-   LAN Party Hero: readable in LIGHT mode
-   ========================== */
-
-:root[data-theme="light"] .hero-card{
-  background: linear-gradient(180deg, #0b1220, #0f172a);
-  border: 1px solid rgba(255,255,255,.10);
-  color: #f8fafc;
-}
-
-/* Überschriften im Hero: nicht var(--text), sondern weiß */
-:root[data-theme="light"] .hero-card .hero-title,
-:root[data-theme="light"] .hero-card h1,
-:root[data-theme="light"] .hero-card h2,
-:root[data-theme="light"] .hero-card h3{
-  color: #f8fafc;
-}
-
-/* Subtitle/Meta */
-:root[data-theme="light"] .hero-card .hero-subtitle{
-  color: rgba(255,255,255,.80);
-}
-:root[data-theme="light"] .hero-card .hero-subtitle strong{
-  color: rgba(255,255,255,.92);
-}
-
-/* Badges im Hero sichtbar */
-:root[data-theme="light"] .hero-card .badge{
-  background: rgba(37,99,235,.18);
-  border: 1px solid rgba(37,99,235,.50);
-  color: #eaf1ff;
-}
-:root[data-theme="light"] .hero-card .badge-ghost{
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.20);
-  color: rgba(255,255,255,.88);
-}
-
-/* Countdown Card: dein Element hat auch .card -> überschreibt sonst */
-:root[data-theme="light"] .hero-card .hero-countdown.card{
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow: none;
-}
-
-/* Countdown Tiles */
-:root[data-theme="light"] .hero-card .countdown-item{
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.14);
-}
-:root[data-theme="light"] .hero-card .countdown-value{
-  color: #ffffff;
-}
-:root[data-theme="light"] .hero-card .countdown-label{
-  color: rgba(255,255,255,.70);
-}
-
-/* Buttons im Hero */
-:root[data-theme="light"] .hero-card .btn-ghost{
-  color: rgba(255,255,255,.90);
-  border-color: rgba(255,255,255,.22);
-  background: rgba(255,255,255,.06);
-}
-:root[data-theme="light"] .hero-card .btn-ghost:hover{
-  background: rgba(255,255,255,.10);
-}
-/* ==========================
-   LAN Party – Countdown tiles (LIGHT mode)
-   ========================== */
-
-/* Wrapper etwas luftiger */
-:root[data-theme="light"] .hero-card .hero-countdown{
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.14);
-  backdrop-filter: blur(6px);
-}
-
-/* Countdown-Kacheln: Glass statt Grau */
-:root[data-theme="light"] .hero-card .countdown-item{
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,.22),
-    rgba(255,255,255,.10)
-  );
-  border: 1px solid rgba(255,255,255,.18);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
-  border-radius: 16px;
-}
-
-/* Zahlen: klar, leicht akzentuiert */
-:root[data-theme="light"] .hero-card .countdown-value{
-  color: #ffffff;
-  font-weight: 900;
-  text-shadow: 0 1px 2px rgba(0,0,0,.25);
-}
-
-/* Labels: ruhiger, nicht dominant */
-:root[data-theme="light"] .hero-card .countdown-label{
-  color: rgba(255,255,255,.72);
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-
-/* Tage leicht hervorheben */
-:root[data-theme="light"] .hero-card #cd-days{
-  color: #93c5fd; /* soft blue */
-}
-:root[data-theme="light"] .hero-card .countdown-item{
-  transition: transform .2s ease, background .2s ease;
-}
-:root[data-theme="light"] .hero-card .countdown-item:hover{
-  transform: translateY(-2px);
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,.28),
-    rgba(255,255,255,.14)
-  );
-}
-/* TEST: wenn du das siehst, wird die neue CSS wirklich geladen */
-.hero-card { outline: 4px solid magenta !important; }
-body::before{
-  content: "CSS LOADED";
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  background: red;
-  color: white;
-  padding: 6px 10px;
-  z-index: 999999;
-  font-size: 12px;
-  border-radius: 10px;
-}
-html { filter: hue-rotate(90deg) !important; }
