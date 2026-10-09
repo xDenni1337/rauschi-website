@@ -1,5 +1,5 @@
 <div class="cards">
-{%- for projekt in collections.projekte | byLang(lang) | reverse -%}
+{%- for projekt in collections.projekte | byLang(lang) | archived(showArchived or false) | reverse -%}
   <article class="card card-link">
     <a class="card-inner" href="{{ projekt.url }}">
       <div class="card-header">

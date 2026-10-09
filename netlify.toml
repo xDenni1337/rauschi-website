@@ -15,3 +15,14 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
+
+# LAN Party 2025 ist ins Archiv gewandert: alte Links weiterleiten
+[[redirects]]
+  from = "/projekte/lan-party-2025/"
+  to = "/projekte/archiviert/lan-party-2025/"
+  status = 301
+
+[[redirects]]
+  from = "/en/projects/lan-party-2025/"
+  to = "/en/projects/archived/lan-party-2025/"
+  status = 301
