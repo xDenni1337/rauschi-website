@@ -7,8 +7,14 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 export const COOKIE = "admin_session";
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 Tage
 
+// Netlify stellt Variablen in Functions über Netlify.env bereit, process.env als Rückfall
+function password() {
+  const v = globalThis.Netlify?.env?.get?.("ADMIN_PASSWORD") ?? process.env.ADMIN_PASSWORD;
+  return typeof v === "string" && v.trim() ? v.trim() : null;
+}
+
 function secret() {
-  const pw = process.env.ADMIN_PASSWORD;
+  const pw = password();
   if (!pw) return null;
   return createHash("sha256").update("admin-session:" + pw).digest();
 }
@@ -28,12 +34,13 @@ function safeEqual(a, b) {
 }
 
 export function isConfigured() {
-  return Boolean(process.env.ADMIN_PASSWORD);
+  return Boolean(password());
 }
 
 export function checkPassword(input) {
-  const pw = process.env.ADMIN_PASSWORD;
+  const pw = password();
   if (!pw || typeof input !== "string") return false;
+  input = input.trim();
   // Über Hashes vergleichen, damit die Länge nichts verrät
   const a = createHash("sha256").update(input).digest();
   const b = createHash("sha256").update(pw).digest();
