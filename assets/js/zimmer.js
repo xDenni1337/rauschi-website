@@ -487,7 +487,7 @@ function buildRoom() {
   box(1.35, 0.9, 0.08, mat("#8b5e3c"), 0, 0.45, -1.1, bed);
 
   // Getigertes Fell: dunkle, wellige Streifen auf graubraunem Grund
-  function tabbyTexture(rings) {
+  function tabbyTexture(rings, tip = rings) {
     return canvasTexture(512, 256, (g, w, h) => {
       g.fillStyle = "#857865";
       g.fillRect(0, 0, w, h);
@@ -513,7 +513,7 @@ function buildRoom() {
         }
         g.stroke();
       }
-      if (rings) {
+      if (tip) {
         g.fillStyle = "#2a2018"; // dunkle Schwanzspitze
         g.fillRect(w - 40, 0, 40, h);
       }
@@ -569,21 +569,23 @@ function buildRoom() {
     haunch.scale.set(1.4, 0.8, 0.8);
   });
 
-  // Vorderbeine nach vorn gestreckt, Pfoten hängen über die Bettkante
-  const legGeo = new THREE.CapsuleGeometry(0.038, 0.24, 6, 12);
-  legGeo.rotateZ(-Math.PI / 2);
-  const dropGeo = new THREE.CapsuleGeometry(0.036, 0.08, 6, 12);
+  // Vorderbeine nach vorn gestreckt, Pfoten hängen über die Bettkante (wie auf dem Foto)
+  const legTex = tabbyTexture(true, false);
+  const legMat = mat("#ffffff", { map: legTex, roughness: 0.95 });
   [-1, 1].forEach((s) => {
-    const leg = new THREE.Mesh(legGeo, fur);
-    leg.position.set(0.42, 0.04, s * 0.12);
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.16, 0.07, s * 0.1),
+      new THREE.Vector3(0.4, 0.05, s * 0.115),
+      new THREE.Vector3(0.575, 0.035, s * 0.12),
+      new THREE.Vector3(0.625, -0.025, s * 0.12),
+    ]);
+    const leg = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.046, 12), legMat);
     leg.castShadow = true;
     catBody.add(leg);
-    const drop = new THREE.Mesh(dropGeo, fur);
-    drop.position.set(0.62, -0.03, s * 0.12);
-    drop.rotation.z = 0.25;
-    catBody.add(drop);
-    const paw = sphere(0.04, cream, 0.64, -0.1, s * 0.12, catBody);
-    paw.scale.set(1, 0.8, 1.1);
+    const paw = sphere(0.05, furPlain, 0.632, -0.045, s * 0.12, catBody);
+    paw.scale.set(0.9, 0.75, 1.05);
+    // Helle Zehen
+    sphere(0.028, cream, 0.66, -0.07, s * 0.12, catBody).scale.set(1, 0.6, 1.4);
   });
 
   // Kopf liegt flach zwischen den Pfoten
@@ -776,6 +778,7 @@ function buildRoom() {
     neon.material.opacity = THREE.MathUtils.lerp(0.75, 1, n);
     neon.material.transparent = true;
     renderer.toneMappingExposure = THREE.MathUtils.lerp(1.0, 1.15, n);
+    eyeMat.emissiveIntensity = THREE.MathUtils.lerp(0.4, 1.4, n); // Katzenaugen leuchten nachts
   }
   applyNight(night);
 
@@ -874,7 +877,7 @@ function buildRoom() {
     minigame: { pos: [3.2, 1.65, -0.8], target: [3.2, 1.3, -3.4] },
     lan: { pos: [-2.1, 2.2, -0.9], target: [-2.3, 2.25, -3.95] },
     about: { pos: [-0.3, 1.7, 0.8], target: [-3.7, 1.2, 0.3] },
-    cat: { pos: [-1.55, 1.25, 3.25], target: [-2.9, 0.72, 2.95] },
+    cat: { pos: [-1.85, 1.45, 3.95], target: [-3.0, 0.72, 2.95] },
   };
   function homeView() {
     const aspect = camera.aspect || 1.5;
@@ -987,8 +990,9 @@ function buildRoom() {
         if (on) {
           o.userData.emissive ??= o.material.emissive.getHex();
           o.userData.emissiveI ??= o.material.emissiveIntensity;
-          o.material.emissive.set("#ffd28a");
-          o.material.emissiveIntensity = 0.28;
+          // Dezent und nachts noch schwächer, sonst färbt sich alles gelb
+          o.material.emissive.set("#fff4e0");
+          o.material.emissiveIntensity = 0.04 + 0.12 * (1 - night);
         } else if (o.userData.emissive !== undefined) {
           o.material.emissive.setHex(o.userData.emissive);
           o.material.emissiveIntensity = o.userData.emissiveI;
