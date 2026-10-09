@@ -9,6 +9,23 @@ module.exports = function (eleventyConfig) {
     domain: "denni-rauschenberg.de",
   });
 
+  // Sprache: Standard Deutsch, alles unter src/en/ ist Englisch (src/en/en.11tydata.json)
+  eleventyConfig.addGlobalData("lang", "de");
+
+  eleventyConfig.addFilter("byLang", (items, lang) =>
+    (items || []).filter((item) => (item.data.lang || "de") === lang)
+  );
+
+  // URL derselben Seite in einer anderen Sprache (über translationKey).
+  // Gibt es keine Übersetzung, geht es zur Startseite der Zielsprache.
+  eleventyConfig.addFilter("translationUrl", (translationKey, targetLang, all) => {
+    const match = (all || []).find(
+      (item) => item.data.translationKey === translationKey && (item.data.lang || "de") === targetLang
+    );
+    if (match) return match.url;
+    return targetLang === "en" ? "/en/" : "/";
+  });
+
   // Collection: Projekte (Tag "projekte")
   eleventyConfig.addCollection("projekte", function (collectionApi) {
     return collectionApi.getFilteredByTag("projekte");
