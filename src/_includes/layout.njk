@@ -10,6 +10,9 @@
   <title>{{ title }} · {{ site.domain }}</title>
   <meta name="description" content="{{ description or kurz or '' }}" />
   <meta name="color-scheme" content="light dark" />
+  {%- if noindex %}
+  <meta name="robots" content="noindex, nofollow" />
+  {%- endif %}
   <meta name="theme-color" content="#faf7f1" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)" />
 
@@ -38,6 +41,9 @@
   {%- endif %}
 
   <link rel="stylesheet" href="/assets/css/style.css" />
+  {%- if extraCss %}
+  <link rel="stylesheet" href="{{ extraCss }}" />
+  {%- endif %}
 </head>
 
 <body>
@@ -139,6 +145,8 @@
         <a href="/impressum/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.imprint }}</a>
         <span class="dot" aria-hidden="true">·</span>
         <a href="/datenschutz/"{% if lang == "en" %} hreflang="de"{% endif %}>{{ ui.footer.privacy }}</a>
+        <span class="dot" aria-hidden="true">·</span>
+        <a href="{{ '/en/admin/' if lang == 'en' else '/admin/' }}">Admin</a>
       </p>
     </div>
   </footer>
@@ -244,5 +252,8 @@
     });
   })();
   </script>
+  {%- if extraJs %}
+  <script src="{{ extraJs }}" defer></script>
+  {%- endif %}
 </body>
 </html>
