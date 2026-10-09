@@ -31,7 +31,8 @@
       avgHr: "Ø Puls",
       noRun: "kein Lauf",
       ariaDist: "Balkendiagramm Distanz",
-      ariaPace: "Pace-Verlauf",
+      ariaPace: "Pace- und Puls-Verlauf",
+      hrAvg5: "Ø Puls letzte 5",
       ariaHeat: "Aktivitätskalender",
       heatDays: ["Mo", "", "Mi", "", "Fr", "", ""],
       rec: {
@@ -55,6 +56,13 @@
         soFar: (km, y, f) => `Bisher ${km} in ${y}, Prognose ${f}.`,
         thisWeek: "Diese Woche",
         streak: "Wochen-Serie",
+        week: "Wochenziel",
+        weekLeft: (km, d) => `Noch ${km} in ${d === 1 ? "1 Tag" : d + " Tagen"}`,
+        weekDone: "Geschafft! 🎉",
+        weekHits: (n, of) => `In ${n} von ${of} der letzten Wochen erreicht`,
+        weekStreak: (n) => `Serie: ${pl(n, "Woche", "Wochen")} am Stück`,
+        weekNone: "Noch kein Wochenziel gesetzt. Über „Ändern“ kannst du eins festlegen.",
+        goalLine: "Ziel",
       },
       table: {
         edit: "Bearbeiten",
@@ -111,7 +119,8 @@
       avgHr: "Avg HR",
       noRun: "no run",
       ariaDist: "Bar chart of distance",
-      ariaPace: "Pace trend",
+      ariaPace: "Pace and heart rate trend",
+      hrAvg5: "Avg HR last 5",
       ariaHeat: "Activity calendar",
       heatDays: ["Mon", "", "Wed", "", "Fri", "", ""],
       rec: {
@@ -135,6 +144,13 @@
         soFar: (km, y, f) => `${km} so far in ${y}, forecast ${f}.`,
         thisWeek: "This week",
         streak: "Week streak",
+        week: "Weekly goal",
+        weekLeft: (km, d) => `${km} to go in ${d === 1 ? "1 day" : d + " days"}`,
+        weekDone: "Done! 🎉",
+        weekHits: (n, of) => `Reached in ${n} of the last ${of} weeks`,
+        weekStreak: (n) => `Streak: ${pl(n, "week", "weeks")} in a row`,
+        weekNone: "No weekly goal yet. Use “Change” to set one.",
+        goalLine: "Goal",
       },
       table: {
         edit: "Edit",
@@ -464,7 +480,7 @@
     const m = { t: 10, r: 8, b: 26, l: 40 };
     const iw = W - m.l - m.r;
     const ih = H - m.t - m.b;
-    const ticks = niceTicks(Math.max(...bs.map((b) => b.km)));
+    const ticks = niceTicks(Math.max(...bs.map((b) => b.km), unit === "week" ? settings.weekGoalKm || 0 : 0));
     const yMax = ticks[ticks.length - 1];
     const y = (v) => m.t + ih - (v / yMax) * ih;
     const slot = iw / bs.length;
@@ -505,24 +521,40 @@
       });
     });
     el("line", { x1: m.l, x2: W - m.r, y1: y(0), y2: y(0), class: "baseline" }, svg);
+    // Wochenziel als gestrichelte Linie, wenn nach Wochen gruppiert
+    const wg = settings.weekGoalKm;
+    if (unit === "week" && wg && wg <= yMax) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(wg), y2: y(wg), class: "goal-line" }, svg);
+      el("text", { x: W - m.r, y: y(wg) - 4, class: "goal-label", "text-anchor": "end" }, svg).textContent = `${T.goal.goalLine} ${fmtKm(wg, 0)}`;
+    }
   }
 
-  // ---------- Pace-Verlauf ----------
+  // ---------- Pace & Puls ----------
   function renderPaceChart(list) {
     const host = $("paceChart");
-    const pts = list.filter((r) => r.distanceKm >= 1).map((r) => ({ r, t: parseIso(r.date).getTime(), p: pace(r) }));
-    if (pts.length < 2) return emptyChart(host, T.needTwo);
+    const pts = list.filter((r) => r.distanceKm >= 1).map((r) => ({ r, t: parseIso(r.date).getTime(), p: pace(r), hr: r.avgHr || null }));
+    if (pts.length < 2) {
+      $("hrLegend").hidden = true;
+      return emptyChart(host, T.needTwo);
+    }
 
-    // gleitender Schnitt der letzten 5 Läufe
+    // gleitender Schnitt der letzten 5 Läufe (Pace nach Strecke gewichtet, Puls über Läufe mit Pulswert)
     pts.forEach((pt, i) => {
       const win = pts.slice(Math.max(0, i - 4), i + 1);
       const km = win.reduce((a, w) => a + w.r.distanceKm, 0);
       pt.avg = win.reduce((a, w) => a + w.r.durationSec, 0) / km;
     });
+    const hrPts = pts.filter((pt) => pt.hr);
+    hrPts.forEach((pt, i) => {
+      const win = hrPts.slice(Math.max(0, i - 4), i + 1);
+      pt.hrAvg = win.reduce((a, w) => a + w.hr, 0) / win.length;
+    });
+    const withHr = hrPts.length >= 2;
+    $("hrLegend").hidden = !withHr;
 
     const W = Math.max(host.clientWidth, 280);
-    const H = 220;
-    const m = { t: 12, r: 12, b: 26, l: 44 };
+    const H = 240;
+    const m = { t: 12, r: withHr ? 40 : 12, b: 26, l: 44 };
     const iw = W - m.l - m.r;
     const ih = H - m.t - m.b;
     const t0 = pts[0].t;
@@ -530,16 +562,32 @@
     const ps = pts.map((p) => p.p);
     const step = 15;
     const pMin = Math.floor((Math.min(...ps) - 5) / step) * step;
-    const pMax = Math.ceil((Math.max(...ps) + 5) / step) * step;
+    let pMax = Math.ceil((Math.max(...ps) + 5) / step) * step;
+    const tickStep = Math.max(step, Math.ceil((pMax - pMin) / 4 / step) * step);
+    const ratio = Math.ceil((pMax - pMin) / tickStep); // Höhe in Gitterabständen
+    pMax = pMin + ratio * tickStep;
     const x = (t) => m.l + (t1 === t0 ? iw / 2 : ((t - t0) / (t1 - t0)) * iw);
     const y = (p) => m.t + ((p - pMin) / (pMax - pMin)) * ih; // schneller = weiter oben
 
+    // Puls-Achse rechts: höherer Puls = weiter oben, auf denselben Gitterlinien wie die Pace
+    let hMin = 0;
+    let hStep = 10;
+    if (withHr) {
+      const hs = hrPts.map((p) => p.hr);
+      hMin = Math.floor((Math.min(...hs) - 3) / 5) * 5;
+      hStep = Math.max(5, Math.ceil((Math.max(...hs) + 3 - hMin) / ratio / 5) * 5);
+    }
+    const hMax = hMin + hStep * ratio;
+    const yh = (h) => m.t + ih - ((h - hMin) / (hMax - hMin)) * ih;
+
     host.innerHTML = "";
     const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": T.ariaPace }, host);
-    const tickStep = Math.max(step, Math.ceil((pMax - pMin) / 4 / step) * step);
-    for (let p = pMin; p <= pMax; p += tickStep) {
+    for (let i = 0, p = pMin; p <= pMax; p += tickStep, i++) {
       el("line", { x1: m.l, x2: W - m.r, y1: y(p), y2: y(p), class: "grid" }, svg);
       el("text", { x: m.l - 6, y: y(p) + 4, class: "axis", "text-anchor": "end" }, svg).textContent = fmtPace(p);
+      if (withHr) {
+        el("text", { x: W - m.r + 6, y: y(p) + 4, class: "axis hr", "text-anchor": "start" }, svg).textContent = fmtInt(hMax - i * hStep);
+      }
     }
     // Zeitachse: ein paar Daten
     const nLabels = Math.max(2, Math.min(6, Math.floor(iw / 90)));
@@ -549,11 +597,16 @@
       el("text", { x: x(t), y: H - 8, class: "axis", "text-anchor": i === 0 ? "start" : i === nLabels - 1 ? "end" : "middle" }, svg).textContent =
         fmtDate(d, (t1 - t0) / DAY > 300);
     }
+    if (withHr) {
+      for (const pt of hrPts) el("circle", { cx: x(pt.t), cy: yh(pt.hr), r: 3.5, class: "dot hr" }, svg);
+      el("path", { class: "line hr", d: hrPts.map((pt, i) => `${i ? "L" : "M"}${x(pt.t)},${yh(pt.hrAvg)}`).join(" ") }, svg);
+    }
     for (const pt of pts) el("circle", { cx: x(pt.t), cy: y(pt.p), r: 4, class: "dot" }, svg);
     el("path", { class: "line", d: pts.map((pt, i) => `${i ? "L" : "M"}${x(pt.t)},${y(pt.avg)}`).join(" ") }, svg);
 
     const cross = el("line", { y1: m.t, y2: m.t + ih, class: "cross", visibility: "hidden" }, svg);
     const ring = el("circle", { r: 6, class: "dot-on", visibility: "hidden" }, svg);
+    const ringHr = el("circle", { r: 5, class: "dot-on hr", visibility: "hidden" }, svg);
     const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, class: "hit" }, svg);
     hit.addEventListener("pointermove", (e) => {
       const box = svg.getBoundingClientRect();
@@ -566,9 +619,15 @@
       ring.setAttribute("cy", y(best.p));
       cross.setAttribute("visibility", "visible");
       ring.setAttribute("visibility", "visible");
+      if (withHr && best.hr) {
+        ringHr.setAttribute("cx", x(best.t));
+        ringHr.setAttribute("cy", yh(best.hr));
+        ringHr.setAttribute("visibility", "visible");
+      } else ringHr.setAttribute("visibility", "hidden");
       const r = best.r;
       showTip(
-        `<strong>${fmtDate(r.date)}</strong><br>Pace ${fmtPace(best.p)} /km · ${fmtKm(r.distanceKm, 2)}<br>${T.last5}: ${fmtPace(best.avg)} /km${r.avgHr ? `<br>${T.avgHr} ${r.avgHr}` : ""}`,
+        `<strong>${fmtDate(r.date)}</strong><br>Pace ${fmtPace(best.p)} /km · ${fmtKm(r.distanceKm, 2)}<br>${T.last5}: ${fmtPace(best.avg)} /km` +
+          (best.hr ? `<br>${T.avgHr} ${best.hr} ${T.bpm}${r.maxHr ? ` (max ${r.maxHr})` : ""}<br>${T.hrAvg5}: ${fmtInt(best.hrAvg)} ${T.bpm}` : ""),
         e.clientX,
         e.clientY
       );
@@ -576,6 +635,7 @@
     hit.addEventListener("pointerleave", () => {
       cross.setAttribute("visibility", "hidden");
       ring.setAttribute("visibility", "hidden");
+      ringHr.setAttribute("visibility", "hidden");
       hideTip();
     });
   }
@@ -723,23 +783,57 @@
       html += `<p class="muted">${T.goal.none} ${km ? T.goal.soFar(fmtKm(km, 0), y, fmtKm(forecast, 0)) : ""}</p>`;
     }
     html += `<div class="mini-stats">
-        <div><p class="kpi-label">${T.goal.thisWeek}</p><p class="kpi-value sm">${fmtKm(thisWeek)}</p></div>
+        ${settings.weekGoalKm ? "" : `<div><p class="kpi-label">${T.goal.thisWeek}</p><p class="kpi-value sm">${fmtKm(thisWeek)}</p></div>`}
         <div><p class="kpi-label">${T.goal.streak}</p><p class="kpi-value sm">${T.weeks(streak)}</p></div>
       </div>`;
+    html += weekGoalHtml(thisWeek);
     $("goal").innerHTML = html;
+  }
+
+  // ---------- Wochenziel ----------
+  function weekGoalHtml(thisWeek) {
+    const goal = settings.weekGoalKm || 0;
+    if (!goal) return `<div class="week-goal"><h3>${T.goal.week}</h3><p class="muted">${T.goal.weekNone}</p></div>`;
+    const totals = weekTotals(runs);
+    const cur = weekStart(today());
+    const pct = Math.min(100, (thisWeek / goal) * 100);
+    const done = thisWeek >= goal;
+    const daysLeft = 7 - ((new Date().getDay() + 6) % 7);
+
+    // abgeschlossene Wochen seit dem ersten Lauf, höchstens die letzten 8
+    const first = runs.length ? weekStart(runs[0].date) : cur;
+    const of = Math.min(8, Math.max(0, daysBetween(first, cur) / 7));
+    let hits = 0;
+    for (let i = 1; i <= of; i++) if ((totals.get(addDays(cur, -7 * i)) || 0) >= goal) hits++;
+    let row = done ? 1 : 0;
+    for (let w = addDays(cur, -7); (totals.get(w) || 0) >= goal; w = addDays(w, -7)) row++;
+
+    return `<div class="week-goal">
+        <h3>${T.goal.week}</h3>
+        <p class="goal-big"><strong>${fmtKm(thisWeek, 1)}</strong> <span class="muted">${T.goal.of} ${fmtKm(goal, 0)}</span></p>
+        <div class="progress${done ? " done" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><span style="width:${pct}%"></span></div>
+        <ul class="goal-facts">
+          <li>${done ? T.goal.weekDone : T.goal.weekLeft(fmtKm(goal - thisWeek, 1), daysLeft)}</li>
+          ${of ? `<li>${T.goal.weekHits(hits, of)}</li>` : ""}
+          ${row ? `<li>${T.goal.weekStreak(row)}</li>` : ""}
+        </ul>
+      </div>`;
   }
 
   $("goalEdit").addEventListener("click", () => {
     const f = $("goalForm");
     f.hidden = !f.hidden;
     $("goalInput").value = settings.yearGoalKm || "";
+    $("weekGoalInput").value = settings.weekGoalKm || "";
     if (!f.hidden) $("goalInput").focus();
   });
   $("goalForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = await api("/api/laeufe?settings=1", {
       method: "PUT",
-      body: JSON.stringify({ settings: { yearGoalKm: parseNum($("goalInput").value) || null } }),
+      body: JSON.stringify({
+        settings: { yearGoalKm: parseNum($("goalInput").value) || null, weekGoalKm: parseNum($("weekGoalInput").value) || null },
+      }),
     });
     $("goalForm").hidden = true;
     setData(data);
