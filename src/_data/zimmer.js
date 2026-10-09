@@ -50,7 +50,7 @@ module.exports = {
       lamp: {
         label: "Lampe",
         title: "Die Lampe",
-        text: "Die Lampe schaltet die ganze Website zwischen hell und dunkel um. Probier's aus.",
+        text: "Der Lichtschalter fürs Zimmer. Stell die Seite auf dunkel und mach das Licht aus, dann wird es richtig Nacht.",
       },
       duck: {
         label: "Quietscheente",
@@ -113,7 +113,7 @@ module.exports = {
       lamp: {
         label: "Lamp",
         title: "The lamp",
-        text: "The lamp switches the whole website between light and dark. Give it a try.",
+        text: "The light switch for the room. Set the site to dark and turn off the light to make it properly night.",
       },
       duck: {
         label: "Rubber duck",

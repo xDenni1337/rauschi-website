@@ -752,6 +752,10 @@ function buildRoom() {
   lampLight.shadow.mapSize.set(512, 512);
   lampLight.shadow.bias = -0.002;
   scene.add(lampLight);
+  // Warmes Raumlicht, das nachts mit der Lampe angeht
+  const roomLight = new THREE.PointLight("#ffd2a0", 0, 14, 1.4);
+  roomLight.position.set(0.2, 3.6, -0.2);
+  scene.add(roomLight);
   const screenLight = new THREE.PointLight("#7aa7ff", 0, 4, 2);
   screenLight.position.set(0.3, 1.3, -2.9);
   const arcadeLight = new THREE.PointLight("#f472b6", 0, 4, 2);
@@ -766,35 +770,46 @@ function buildRoom() {
   let nightTarget = night;
   drawSky(night > 0.5);
 
+  // Lampe = Lichtschalter fürs Zimmer. Nachts ist es mit Licht hell und gemütlich, ohne Licht dunkel.
+  let light = 1;
+  let lightTarget = 1;
+
   function applyNight(n) {
-    hemi.intensity = THREE.MathUtils.lerp(2.0, 0.22, n);
-    hemi.color.set(n > 0.5 ? "#9fb3ff" : "#fff6e8");
+    const l = light;
+    const dark = n * (1 - l); // 1 = Nacht ohne Licht
+    hemi.intensity = THREE.MathUtils.lerp(2.0, THREE.MathUtils.lerp(0.18, 1.15, l), n);
+    hemi.color.set(n > 0.5 ? (l > 0.5 ? "#ffe4c4" : "#9fb3ff") : "#fff6e8");
     sun.intensity = THREE.MathUtils.lerp(2.4, 0.05, n);
-    lampLight.intensity = THREE.MathUtils.lerp(0, 9, n);
-    bulbMat.emissiveIntensity = THREE.MathUtils.lerp(0, 3, n);
+    lampLight.intensity = l * THREE.MathUtils.lerp(0.6, 9, n);
+    roomLight.intensity = l * n * 14;
+    bulbMat.emissiveIntensity = l * THREE.MathUtils.lerp(0.6, 3, n);
     screenLight.intensity = THREE.MathUtils.lerp(0.2, 2.2, n);
     arcadeLight.intensity = THREE.MathUtils.lerp(0.2, 2.5, n);
     neonLight.intensity = THREE.MathUtils.lerp(0.3, 2.5, n);
     neon.material.opacity = THREE.MathUtils.lerp(0.75, 1, n);
     neon.material.transparent = true;
     renderer.toneMappingExposure = THREE.MathUtils.lerp(1.0, 1.15, n);
-    eyeMat.emissiveIntensity = THREE.MathUtils.lerp(0.4, 1.4, n); // Katzenaugen leuchten nachts
+    eyeMat.emissiveIntensity = THREE.MathUtils.lerp(0.4, 1.6, dark); // Katzenaugen leuchten im Dunkeln
   }
   applyNight(night);
 
   new MutationObserver(() => {
     nightTarget = isDark() ? 1 : 0;
     drawSky(nightTarget > 0.5);
-    if (reducedMotion.matches) night = nightTarget;
+    if (reducedMotion.matches) {
+      night = nightTarget;
+      applyNight(night);
+    }
     updateLampButton();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   function toggleLamp() {
-    // Über die Einstellungs-Knöpfe der Seite, damit die Wahl gespeichert wird
-    const target = isDark() ? "light" : "dark";
-    const btn = document.querySelector(`[data-theme-choice="${target}"]`);
-    if (btn) btn.click();
-    else document.documentElement.dataset.theme = target;
+    lightTarget = lightTarget ? 0 : 1;
+    if (reducedMotion.matches) {
+      light = lightTarget;
+      applyNight(night);
+    }
+    updateLampButton();
   }
 
   // ---------- Geräusche ----------
@@ -910,7 +925,7 @@ function buildRoom() {
   let selected = null;
 
   function updateLampButton() {
-    if (selected === "lamp") panelAction.textContent = isDark() ? T.lampOn : T.lampOff;
+    if (selected === "lamp") panelAction.textContent = lightTarget ? T.lampOff : T.lampOn;
   }
 
   function select(key) {
@@ -1072,9 +1087,11 @@ function buildRoom() {
     const now = performance.now();
     const calm = reducedMotion.matches;
 
-    if (night !== nightTarget) {
+    if (night !== nightTarget || light !== lightTarget) {
       const step = dt / 0.7;
       night = Math.abs(nightTarget - night) <= step ? nightTarget : night + Math.sign(nightTarget - night) * step;
+      const lstep = dt / 0.35;
+      light = Math.abs(lightTarget - light) <= lstep ? lightTarget : light + Math.sign(lightTarget - light) * lstep;
       applyNight(night);
     }
 
