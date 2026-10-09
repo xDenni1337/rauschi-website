@@ -477,8 +477,11 @@ a.segment:hover{ text-decoration: none; }
   gap: 14px;
   margin-top: 28px;
 }
-@media (min-width: 720px){
-  .home-grid{ grid-template-columns: repeat(3, 1fr); }
+@media (min-width: 620px){
+  .home-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px){
+  .home-grid{ grid-template-columns: repeat(4, 1fr); }
 }
 
 .tile{
@@ -793,3 +796,10 @@ a.segment:hover{ text-decoration: none; }
 /* Archiv */
 .archive-heading{ margin-top: 2.5rem; }
 .archive-note{ margin: 0 0 1rem; font-size: .92rem; }
+
+.card-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
