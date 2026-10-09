@@ -1,0 +1,172 @@
+---
+layout: layout.njk
+title: Lauf-Dashboard
+description: Privates Lauf-Dashboard.
+permalink: /admin/laufen/
+noindex: true
+extraCss: /assets/css/admin.css
+extraJs: /assets/js/lauf-dashboard.js
+eleventyExcludeFromCollections: true
+---
+
+<div id="dash" class="dash" hidden>
+  <div class="dash-head">
+    <div>
+      <p class="kicker"><a href="/admin/">Privater Bereich</a></p>
+      <h1>Lauf-Dashboard</h1>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-primary" type="button" id="addBtn">+ Lauf hinzufügen</button>
+      <button class="btn btn-ghost" type="button" data-logout>Abmelden</button>
+    </div>
+  </div>
+
+  <div class="range-bar" role="group" aria-label="Zeitraum">
+    <div class="chips" id="rangeChips">
+      <button type="button" class="chip" data-range="7d">7 Tage</button>
+      <button type="button" class="chip" data-range="30d">30 Tage</button>
+      <button type="button" class="chip" data-range="3m">3 Monate</button>
+      <button type="button" class="chip" data-range="12m">12 Monate</button>
+      <button type="button" class="chip" data-range="ytd">Dieses Jahr</button>
+      <button type="button" class="chip" data-range="lastyear">Letztes Jahr</button>
+      <button type="button" class="chip" data-range="all">Alles</button>
+      <button type="button" class="chip" data-range="custom">Eigener</button>
+    </div>
+    <div class="custom-range" id="customRange" hidden>
+      <label>Von <input class="input input-sm" type="date" id="fromDate" /></label>
+      <label>Bis <input class="input input-sm" type="date" id="toDate" /></label>
+    </div>
+    <p class="range-label muted" id="rangeLabel"></p>
+  </div>
+
+  <section class="empty card" id="emptyState" hidden>
+    <h2>Noch keine Läufe</h2>
+    <p class="muted">Mach in der Fitness-App einen Screenshot von deinem Training und lade ihn hoch. Die Werte werden erkannt und du kannst sie vor dem Speichern prüfen. Ältere Läufe kannst du auch als CSV importieren.</p>
+    <div class="empty-actions">
+      <button class="btn btn-primary" type="button" data-add>Ersten Lauf hinzufügen</button>
+      <button class="btn btn-ghost" type="button" data-import>CSV importieren</button>
+    </div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Kennzahlen"></section>
+
+  <section class="grid-2">
+    <article class="card chart-card">
+      <div class="card-head">
+        <h2 class="card-h" id="distTitle">Distanz</h2>
+      </div>
+      <div class="chart" id="distChart"></div>
+    </article>
+    <article class="card chart-card">
+      <div class="card-head">
+        <h2 class="card-h">Pace-Verlauf</h2>
+        <div class="legend" aria-hidden="true">
+          <span><i class="lg-dot"></i>Einzellauf</span>
+          <span><i class="lg-line"></i>Ø letzte 5 Läufe</span>
+        </div>
+      </div>
+      <div class="chart" id="paceChart"></div>
+      <p class="chart-note muted">Oben ist schneller.</p>
+    </article>
+  </section>
+
+  <section class="grid-2">
+    <article class="card">
+      <h2 class="card-h">Bestleistungen im Zeitraum</h2>
+      <dl class="records" id="records"></dl>
+    </article>
+    <article class="card">
+      <div class="card-head">
+        <h2 class="card-h" id="goalTitle">Jahresziel</h2>
+        <button class="link-btn" type="button" id="goalEdit">Ändern</button>
+      </div>
+      <form class="goal-form" id="goalForm" hidden>
+        <label class="field-inline">Ziel in km <input class="input input-sm" type="number" min="0" step="10" id="goalInput" /></label>
+        <button class="btn btn-primary btn-sm" type="submit">Speichern</button>
+      </form>
+      <div id="goal"></div>
+    </article>
+  </section>
+
+  <article class="card">
+    <div class="card-head">
+      <h2 class="card-h">Aktivität der letzten 12 Monate</h2>
+      <div class="heat-legend" aria-hidden="true">weniger <i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i> mehr</div>
+    </div>
+    <div class="heatmap-wrap"><div class="chart" id="heatmap"></div></div>
+  </article>
+
+  <article class="card">
+    <div class="card-head">
+      <h2 class="card-h">Läufe im Zeitraum</h2>
+      <div class="table-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-import>CSV importieren</button>
+        <button class="btn btn-ghost btn-sm" type="button" id="exportCsv">CSV exportieren</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="runs">
+        <thead>
+          <tr>
+            <th scope="col">Datum</th><th scope="col">Art</th><th scope="col" class="num">Distanz</th>
+            <th scope="col" class="num">Zeit</th><th scope="col" class="num">Pace</th><th scope="col" class="num">Puls</th>
+            <th scope="col" class="num">Höhe</th><th scope="col" class="num">kcal</th><th scope="col">Notiz</th><th scope="col"><span class="sr-only">Aktionen</span></th>
+          </tr>
+        </thead>
+        <tbody id="runRows"></tbody>
+      </table>
+    </div>
+    <button class="link-btn table-more" type="button" id="moreRows" hidden></button>
+  </article>
+
+  <input type="file" id="csvInput" accept=".csv,text/csv" hidden />
+</div>
+
+<p class="muted" id="dashLoading">Lade …</p>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+
+<dialog class="run-dialog" id="runDialog" aria-labelledby="dialogTitle">
+  <form method="dialog" class="dialog-inner" id="runForm" novalidate>
+    <div class="dialog-head">
+      <h2 id="dialogTitle">Lauf hinzufügen</h2>
+      <button class="icon-btn" type="button" id="dialogClose" aria-label="Schließen">✕</button>
+    </div>
+
+    <div class="dropzone" id="dropzone" tabindex="0">
+      <input type="file" id="shotInput" accept="image/*" multiple hidden />
+      <img id="shotPreview" alt="Screenshot-Vorschau" hidden />
+      <div class="dz-text">
+        <strong>Screenshot aus der Fitness-App</strong>
+        <span class="muted">Hier ablegen, einfügen (Strg/Cmd + V) oder <button type="button" class="link-btn" id="shotPick">auswählen</button>. Mehrere auf einmal gehen auch.</span>
+        <span class="dz-status" id="shotStatus" role="status"></span>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <label class="field"><span>Datum *</span><input class="input" type="date" name="date" required /></label>
+      <label class="field"><span>Startzeit</span><input class="input" type="time" name="startTime" /></label>
+      <label class="field"><span>Art</span>
+        <input class="input" name="type" list="typeList" placeholder="z. B. Outdoor-Lauf" />
+        <datalist id="typeList"><option value="Outdoor-Lauf"><option value="Indoor-Lauf"><option value="Laufband"><option value="Wettkampf"><option value="Intervalle"></datalist>
+      </label>
+      <label class="field"><span>Distanz (km) *</span><input class="input" name="distanceKm" inputmode="decimal" placeholder="z. B. 5,02" required /></label>
+      <label class="field"><span>Zeit (h:mm:ss) *</span><input class="input" name="duration" placeholder="z. B. 0:32:15" required /></label>
+      <label class="field"><span>Pace</span><input class="input" name="pace" placeholder="wird berechnet" readonly tabindex="-1" /></label>
+      <label class="field"><span>Ø Puls</span><input class="input" name="avgHr" inputmode="numeric" placeholder="S/min" /></label>
+      <label class="field"><span>Max. Puls</span><input class="input" name="maxHr" inputmode="numeric" /></label>
+      <label class="field"><span>Höhenmeter</span><input class="input" name="elevationM" inputmode="numeric" placeholder="m" /></label>
+      <label class="field"><span>Aktive kcal</span><input class="input" name="calories" inputmode="numeric" /></label>
+      <label class="field"><span>Schrittfrequenz</span><input class="input" name="cadence" inputmode="numeric" placeholder="SPM" /></label>
+      <label class="field field-wide"><span>Notiz</span><input class="input" name="notes" maxlength="500" placeholder="Wetter, Gefühl, Strecke …" /></label>
+    </div>
+
+    <p class="form-msg" id="formMsg" role="alert"></p>
+
+    <div class="dialog-foot">
+      <span class="muted" id="queueInfo"></span>
+      <button class="btn btn-ghost" type="button" id="skipBtn" hidden>Überspringen</button>
+      <button class="btn btn-primary" type="submit" id="saveBtn">Speichern</button>
+    </div>
+  </form>
+</dialog>

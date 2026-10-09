@@ -1,0 +1,47 @@
+---
+layout: layout.njk
+title: Admin
+description: Privater Bereich.
+permalink: /admin/
+noindex: true
+extraCss: /assets/css/admin.css
+extraJs: /assets/js/admin.js
+eleventyExcludeFromCollections: true
+---
+
+<section class="admin-login" id="loginView" hidden>
+  <div class="card login-card">
+    <h1>Privater Bereich</h1>
+    <p class="muted">Nur für Denni. Bitte mit dem Admin-Passwort anmelden.</p>
+    <form id="loginForm" class="login-form">
+      <label class="field">
+        <span>Passwort</span>
+        <input class="input" type="password" id="password" name="password" autocomplete="current-password" required />
+      </label>
+      <button class="btn btn-primary" type="submit" id="loginBtn">Anmelden</button>
+      <p class="form-msg" id="loginMsg" role="alert"></p>
+    </form>
+  </div>
+</section>
+
+<section id="hubView" hidden>
+  <div class="dash-head">
+    <div>
+      <p class="kicker">Privater Bereich</p>
+      <h1>Hallo Denni</h1>
+    </div>
+    <button class="btn btn-ghost" type="button" data-logout>Abmelden</button>
+  </div>
+
+  <div class="cards hub-cards">
+    <article class="card card-link">
+      <a class="card-inner" href="/admin/laufen/">
+        <h2 class="card-title">Lauf-Dashboard</h2>
+        <p class="card-desc">Kilometer, Pace, Puls und Bestleistungen. Neue Läufe per Apple-Fitness-Screenshot hinzufügen.</p>
+        <span class="card-cta">Öffnen →</span>
+      </a>
+    </article>
+  </div>
+</section>
+
+<p class="muted" id="adminLoading">Lade …</p>
