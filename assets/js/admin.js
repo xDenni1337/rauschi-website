@@ -26,7 +26,7 @@
     .then((s) => {
       if (s.admin && next) return location.replace(next);
       show(Boolean(s.admin));
-      if (!s.configured) msg.textContent = T.notConfigured;
+      if (!s.configured) msg.textContent = T.notConfigured + (s.site ? ` (Netlify-Site: ${s.site})` : "");
     })
     .catch(() => {
       show(false);

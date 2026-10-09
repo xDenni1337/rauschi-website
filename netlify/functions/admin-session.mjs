@@ -13,9 +13,11 @@ import {
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export default async (req) => {
+export default async (req, context) => {
   if (req.method === "GET") {
-    return json(200, { admin: isAdmin(req), configured: isConfigured() });
+    // Site-Name hilft herauszufinden, welche Netlify-Site die Domain gerade ausliefert
+    const site = isConfigured() ? undefined : context?.site?.name || process.env.SITE_NAME;
+    return json(200, { admin: isAdmin(req), configured: isConfigured(), site });
   }
 
   if (req.method === "DELETE") {
