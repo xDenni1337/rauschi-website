@@ -1,0 +1,17 @@
+<div class="cards">
+{%- for projekt in collections.projekte | byLang(lang) | reverse -%}
+  <article class="card card-link">
+    <a class="card-inner" href="{{ projekt.url }}">
+      <div class="card-header">
+        <h2 class="card-title">{{ projekt.data.title }}</h2>
+      </div>
+
+      {%- if projekt.data.kurz -%}
+        <p class="card-desc">{{ projekt.data.kurz }}</p>
+      {%- endif -%}
+
+      <span class="card-cta">{{ i18n[lang].projects.cta }}</span>
+    </a>
+  </article>
+{%- endfor -%}
+</div>
