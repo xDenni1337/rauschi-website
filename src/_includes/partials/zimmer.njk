@@ -1,0 +1,36 @@
+{%- set t = zimmer[lang] -%}
+<h1>{{ title }}</h1>
+<p class="muted">{{ t.intro }}</p>
+
+<div class="room" id="room">
+  <div class="room-stage" id="roomStage">
+    <canvas id="roomCanvas" aria-label="{{ t.canvasLabel }}"></canvas>
+    <p class="room-loading" id="roomLoading">{{ t.loading }}</p>
+    <div class="room-tip" id="roomTip" hidden></div>
+
+    <div class="room-toolbar">
+      <button class="btn btn-ghost room-btn" id="roomReset" type="button">{{ t.reset }}</button>
+      <button class="btn btn-ghost room-btn" id="roomFull" type="button">{{ t.fullscreen }}</button>
+    </div>
+
+    <div class="room-panel card" id="roomPanel" hidden aria-live="polite">
+      <button class="room-close" id="roomClose" type="button" aria-label="{{ t.close }}">×</button>
+      <h2 class="room-panel-title" id="roomPanelTitle"></h2>
+      <p class="room-panel-text" id="roomPanelText"></p>
+      <a class="btn btn-primary" id="roomPanelLink" href="#" hidden>{{ t.open }}</a>
+      <button class="btn btn-primary" id="roomPanelAction" type="button" hidden></button>
+    </div>
+  </div>
+  <p class="muted room-hint">{{ t.hint }}</p>
+
+  <p class="room-nowebgl" id="roomNoWebgl" hidden>{{ t.noWebgl }}</p>
+  <div class="room-items" role="group" aria-label="{{ t.inRoom }}">
+    {%- for key, item in t.items %}
+    <button class="room-chip" type="button" data-item="{{ key }}">{{ item.label }}</button>
+    {%- endfor %}
+  </div>
+</div>
+
+<script type="application/json" id="roomText">{{ t | dump | safe }}</script>
+<script type="importmap">{ "imports": { "three": "/assets/vendor/three/three.module.min.js" } }</script>
+<script type="module" src="/assets/js/zimmer.js"></script>
